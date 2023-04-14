@@ -17,3 +17,5 @@ app.use(helmet());
 
 // Conect DB
 connectDB(app, PORT, DB);
+
+//Routes
