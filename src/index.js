@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const connectDB = require("./utils/connectDB.js");
+const jwtCheck = require("./utils/authz.js")
 const {
     PORT,
     DB
@@ -11,6 +12,7 @@ const {
 const app = express();
 
 // Middlewares
+app.use(jwtCheck);
 app.use(express.json());
 app.use(cors);
 app.use(helmet());
