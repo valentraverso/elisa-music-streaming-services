@@ -1,5 +1,5 @@
-const albumsRoute = require("./albums.routes");
+const albumRouter = require("./albums.route");
 
 module.exports = {
-    albumsRoute
+    albumRouter
 }
