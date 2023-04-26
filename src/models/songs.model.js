@@ -10,12 +10,12 @@ const songSchema = new Schema ({
         type: Types.ObjectId,
         required: [true, "You must provide the artist of the album"]
     },
-    feat: {
+    feat: [{
         type: Types.ObjectId || String,
         required: false,
         max: [100, "You pass the max of 100 characters"],
         ref: "users"
-    },
+    }],
     file: {
         id: String,
         url: {
@@ -23,11 +23,11 @@ const songSchema = new Schema ({
         },
         required: [true, "You must provide a link to upload the song"]
     },
-    genre: {
-        type: Array,
+    genre: [{
+        type: Types.ObjectId,
         required: [true, "You must provide the genre of your song"],
         ref: 'genres'
-    },
+    }],
     album: {
         type: Types.ObjectId,
         required: [true, "You must provide the album of the song"],

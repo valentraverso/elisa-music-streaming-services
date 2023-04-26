@@ -8,6 +8,7 @@ const {
     PORT,
     DB
 } = require("./config/config.js");
+const fileUpload = require("express-fileupload")
 
 
 const app = express();
@@ -17,6 +18,10 @@ app.use(jwtCheck);
 app.use(express.json());
 app.use(cors);
 app.use(helmet());
+app.use(fileUpload({
+    useTempFiles : true,
+    tempFileDir : './src/tmp/assets'
+}));
 
 // Conect DB
 connectDB(app, PORT, DB);
