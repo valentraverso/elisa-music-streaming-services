@@ -20,8 +20,7 @@ const songSchema = new Schema ({
         id: String,
         url: {
             type: String
-        },
-        required: [true, "You must provide a link to upload the song"]
+        }    
     },
     genre: [{
         type: Types.ObjectId,
