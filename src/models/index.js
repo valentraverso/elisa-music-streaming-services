@@ -1,4 +1,4 @@
-const albumModel = require("./albums.models")
+const {albumModel} = require("./albums.model")
 
 const songModel = require("./songs.model")
 
