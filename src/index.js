@@ -20,7 +20,7 @@ app.use(cors);
 app.use(helmet());
 app.use(fileUpload({
     useTempFiles : true,
-    tempFileDir : './src/tmp/assets'
+    tempFileDir : './src/assets/tmp/'
 }));
 
 // Conect DB
