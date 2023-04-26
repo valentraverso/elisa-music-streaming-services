@@ -1,7 +1,10 @@
 const express = require("express");
 const router = express.Router()
+const {albumController} = require("../controllers")
+
+const {getAllAlbum} = albumController
 
 router
-.get("/albums")
+.get("/all", getAllAlbum)
 
 module.exports = {router}

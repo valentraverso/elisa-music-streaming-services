@@ -26,3 +26,5 @@ const albumController = {
         }
     },
 }
+
+module.exports = {albumController}

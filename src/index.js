@@ -3,6 +3,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const connectDB = require("./utils/connectDB.js");
 const jwtCheck = require("./utils/authz.js")
+const {albumsRoute}= require("./routes")
 const {
     PORT,
     DB
@@ -21,3 +22,5 @@ app.use(helmet());
 connectDB(app, PORT, DB);
 
 //Routes
+
+app.use("/albums", albumsRoute)
