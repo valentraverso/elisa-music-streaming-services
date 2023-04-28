@@ -1,4 +1,6 @@
 const { albumModel } = require("../models");
+const fs = require("fs-extra");
+const {uploadAlbum} = require("../utils/cloudinary");
 
 
 const albumController = {
@@ -26,9 +28,23 @@ const albumController = {
         }
     },
     createAlbum: async (req, res) => {
+        const {body, files} = req
+        console.log(files)
+        if(!files.img){
+            res.status(409).send({
+                status: false,
+                msg: "You need to add a image",
+            })
+        }
         try {
-            const newAlbum = new albumModel(req.body);
-            await newAlbum.save();
+            const {public_id, secure_url} = await uploadAlbum(files.img.tempFilePath)
+            await fs.unlink(files.img.tempFilePath)
+
+            const newAlbum = await albumModel.create({
+                ...body, 
+                img:{public_id, secure_url}
+            });
+
             res.status(201).send({
                 status: true,
                 msg: "We create a new album",

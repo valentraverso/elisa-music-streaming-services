@@ -22,8 +22,8 @@ const albumSchema = new Schema({
         type: Date,
         required: [true, "You need to add the release date for the album"]
     },
-    image: {
-        type: String,
+    img: {
+        type: Object,
         required: [true, "You need to add the image for the album"]
     },
     statistics: {
