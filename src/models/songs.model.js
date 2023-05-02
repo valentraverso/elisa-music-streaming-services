@@ -16,6 +16,12 @@ const songSchema = new Schema ({
         max: [100, "You pass the max of 100 characters"],
         ref: "users"
     }],
+    file: {
+        id: String,
+        url: {
+            type: String
+        }    
+    },
     genre: [{
         type: Types.ObjectId,
         required: [true, "You must provide the genre of your song"],

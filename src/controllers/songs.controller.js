@@ -28,7 +28,7 @@ const songController = {
         }
     },
     postSong: async (req, res) => {
-        const { body } = req;
+        const { body, files } = req;
 
         try {
             const song = await songModel
