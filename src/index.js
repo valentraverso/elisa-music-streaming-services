@@ -3,7 +3,10 @@ const cors = require("cors");
 const helmet = require("helmet");
 const connectDB = require("./utils/connectDB.js");
 const jwtCheck = require("./utils/authz.js")
-const {albumRouter}= require("./routes")
+const {
+    albumRouter,
+    songRouter
+}= require("./routes")
 const {
     PORT,
     DB
@@ -29,3 +32,4 @@ connectDB(app, PORT, DB);
 //Routes
 
 app.use("/albums", albumRouter)
+app.use("/songs", songRouter)

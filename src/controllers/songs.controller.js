@@ -1,4 +1,5 @@
 const { songModel } = require("../models");
+const fs = require("fs-extra")
 
 const songController = {
     getAllSongs: async (req, res) => {
@@ -31,9 +32,12 @@ const songController = {
         const { body, files } = req;
 
         try {
+            const { public_id, secure_url } = await uploadRewardImg(files.image.tempFilePath)
+            await fs.unlink(files.image.tempFilePath)
+
             const song = await songModel
                 .create({
-                    ...body
+                    ...body,
                 });
 
             res.status(200).send({
@@ -47,3 +51,4 @@ const songController = {
     }
 }
 
+module.exports = {songController};
