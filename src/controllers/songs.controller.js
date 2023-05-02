@@ -1,10 +1,12 @@
 const { songModel } = require("../models");
+const fs = require("fs-extra")
 
 const songController = {
     getAllSongs: async (req, res) => {
         try {
             const song = await songModel
                 .find({ _id: -1 })
+                .populate("albums")
                 .lean()
                 .exec();
 
@@ -33,7 +35,7 @@ const songController = {
         try {
             const song = await songModel
                 .create({
-                    ...body
+                    ...body,
                 });
 
             res.status(200).send({
@@ -42,8 +44,18 @@ const songController = {
                 data: song
             });
         } catch (err) {
-
+            res.status(503).send({
+                status: false,
+                msg: "Error",
+                data: err
+            });
         }
+    },
+    consoleSong: async (next) => {
+        console.log("console song")
+
+        next();
     }
 }
 
+module.exports = {songController};
