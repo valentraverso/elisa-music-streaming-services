@@ -12,9 +12,8 @@ const albumSchema = new Schema({
         required: [false, "You need to add the artist for the album"],
     },
     songs: [{
-        type: Types.ObjectId,
-        required: false,
-        max: [15, "You cannot add more than 15 songs to an album"],
+        type: Schema.Types.ObjectId,
+        required: true,
         ref: "songs",
         default: []
         }],
@@ -41,4 +40,4 @@ const albumSchema = new Schema({
 
 const albumModel = model("albums", albumSchema)
 
-module.exports = {albumModel}
+module.exports = albumModel
