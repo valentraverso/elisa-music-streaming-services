@@ -26,6 +26,6 @@ app.use(fileUpload({
 // Conect DB
 connectDB(app, PORT, DB);
 
-//Routes
+//Routes 
 
 app.use("/albums", albumRouter)
