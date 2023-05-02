@@ -7,7 +7,7 @@ const songSchema = new Schema ({
         max: [80, "You pass the max of 80 characters"]
     },
     artist: {
-        type: Types.ObjectId,
+        type: String,
         required: [true, "You must provide the artist of the album"]
     },
     feat: [{
@@ -17,14 +17,11 @@ const songSchema = new Schema ({
         ref: "users"
     }],
     file: {
-        id: String,
-        url: {
-            type: String
-        }    
+        type: String,   
     },
     genre: [{
         type: Types.ObjectId,
-        required: [true, "You must provide the genre of your song"],
+        required: [false, "You must provide the genre of your song"],
         ref: 'genres'
     }],
     album: {
@@ -35,7 +32,7 @@ const songSchema = new Schema ({
     },
     statistics: {
         type: Types.ObjectId,
-        required: [true, "You must provide the ID of the statistics"],
+        required: [false, "You must provide the ID of the statistics"],
         max: [1, "The statistic can be link to 1 ID only"]
     }
 });

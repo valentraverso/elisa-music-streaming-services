@@ -9,14 +9,14 @@ const albumSchema = new Schema({
     },
     artist: {
         type: String,
-        required: [true, "You need to add the artist for the album"],
-        minlength: [2, "Artist name must be at least 2 characters long"],
-        maxlength: [20, "Artist name cannot be more than 20 characters long"]
+        required: [false, "You need to add the artist for the album"],
     },
     songs: [{
-        type: String,
-        required: [true, "You need to add at least one song to the album"],
-        max: [15, "You cannot add more than 15 songs to an album"]
+        type: Types.ObjectId,
+        required: false,
+        max: [15, "You cannot add more than 15 songs to an album"],
+        ref: "songs",
+        default: []
         }],
     release: {
         type: Date,
@@ -33,11 +33,9 @@ const albumSchema = new Schema({
     discography: {
         type: String,
         required: [true, "You need to add the discography for the album"]
-    },
+    }
 },
-
 {timestamps:true}
-
 );
 
 
