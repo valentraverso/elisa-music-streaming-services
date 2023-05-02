@@ -12,6 +12,10 @@ const UserSchema = new Schema({
     picture:{
         type: String
     },
+    sub:{
+        required: [true],
+        type: String
+    },
     follows:[{
         type: Types.ObjectId,
         ref: "follows"
@@ -41,7 +45,8 @@ const UserSchema = new Schema({
         ref: "artists"
     }],
     role:{
-        type: String
+        type: Number,
+        default: 1
     }
     
 

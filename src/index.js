@@ -5,7 +5,8 @@ const connectDB = require("./utils/connectDB.js");
 const jwtCheck = require("./utils/authz.js")
 const {
     albumRouter,
-    songRouter
+    songRouter,
+    userRouter
 }= require("./routes")
 const {
     PORT,
@@ -33,3 +34,4 @@ connectDB(app, PORT, DB);
 
 app.use("/albums", albumRouter)
 app.use("/songs", songRouter)
+app.use("/users", userRouter)
