@@ -1,6 +1,10 @@
 const {Schema, model, Types} = require("mongoose");
 
 const albumSchema = new Schema({
+    owner: {
+        type: Types.ObjectId,
+        required: true
+    },
     title: {
         type: String,
         required: [true, "You need to add the title for the album"],
@@ -22,8 +26,8 @@ const albumSchema = new Schema({
         required: [true, "You need to add the release date for the album"]
     },
     img: {
-        type: Object,
-        required: [true, "You need to add the image for the album"]
+        public_id: {type: String, required: true},
+        secure_url: {type: String, required: true}
     },
     statistics: {
         type: Schema.Types.ObjectId,
@@ -32,7 +36,12 @@ const albumSchema = new Schema({
     discography: {
         type: String,
         required: [true, "You need to add the discography for the album"]
-    }
+    },
+    owner: {
+        type: Schema.Types.ObjectId,
+        ref: "users",
+        required: true,
+    },
 },
 {timestamps:true}
 );
