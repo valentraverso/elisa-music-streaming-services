@@ -17,7 +17,7 @@ const uploadAlbum = async (filePath) => {
 
 const uploadSong = async (filePath) => {
     return await cloudinary.uploader.upload(filePath, {
-        resource_type: 'audio',
+        resource_type: 'auto',
         folder: "Home/songs"
     })
 }

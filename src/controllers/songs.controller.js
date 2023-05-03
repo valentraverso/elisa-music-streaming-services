@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const { songModel, albumModel } = require("../models");
-const fs = require("fs-extra")
+const fs = require("fs-extra");
+const { uploadSong } = require("../utils/cloudinary");
 
 const songController = {
     getAllSongs: async (req, res) => {
@@ -30,22 +31,75 @@ const songController = {
             })
         }
     },
+    getByTitle: async (req, res, next) => {
+        const {params: {songTitle}} = req;
+
+        if(!songTitle || songTitle.length > 50){
+            res.status(409).send({
+                status: false,
+                msg: "The title need to have less than 50 characters"
+            });
+            return;
+        }
+
+        try{
+            const song = await songModel
+            .find({
+                title: {"$eq": songTitle}
+            })
+            .lean()
+            .exec();
+
+            res.status(200).send({
+                status: true,
+                msg: "We find song with this title.",
+                data: song
+            })
+        }catch(err){
+            res.status(503).send({
+                status: false,
+                msg: "Error",
+                data: err
+            });
+        }
+    },
     postSong: async (req, res) => {
         const { body, files } = req;
 
+        if (!mongoose.Types.ObjectId.isValid(body.album)) {
+            res.status(409).send({
+                status: false,
+                msg: "Invalid ID"
+            })
+            return;
+        }
+
+        if (!files.songFile) {
+            res.status(409).send({
+                status: false,
+                msg: "You need to add a song file",
+            })
+        }
+
         try {
+            const { public_id, secure_url } = await uploadSong(files.songFile.tempFilePath)
+            await fs.unlink(files.songFile.tempFilePath)
+
             const song = await songModel
                 .create({
                     ...body,
+                    file: {
+                        public_id,
+                        secure_url
+                    }
                 });
+            
 
-            const updateAlbum = await albumModel.findByIdAndUpdate(
+            await albumModel.findByIdAndUpdate(
                 { _id: body.album },
                 { "$push": { songs: song._id } },
                 { new: true }
             )
-
-            console.log(updateAlbum)
 
             res.status(200).send({
                 status: true,
@@ -63,7 +117,7 @@ const songController = {
     updateSong: async (req, res, next) => {
         const { body: bodyRequest, params: { idSong } } = req;
 
-        if(!mongoose.Types.ObjectId.isValid(idSong)){
+        if (!mongoose.Types.ObjectId.isValid(idSong)) {
             res.status(409).send({
                 status: false,
                 msg: "Invalid ID"
@@ -107,7 +161,7 @@ const songController = {
     deleteSong: async (req, res, next) => {
         const { body: { idOwner }, params: { idSong } } = req;
 
-        if(!mongoose.Types.ObjectId.isValid(idSong)){
+        if (!mongoose.Types.ObjectId.isValid(idSong)) {
             res.status(409).send({
                 status: false,
                 msg: "Invalid ID"
@@ -122,10 +176,10 @@ const songController = {
                     owner: idOwner
                 });
 
-                res.status(200).send({
-                    status: true,
-                    msg: "Song deleted successfully"
-                })
+            res.status(200).send({
+                status: true,
+                msg: "Song deleted successfully"
+            })
         } catch (err) {
             res.status(500).send({
                 status: false,
