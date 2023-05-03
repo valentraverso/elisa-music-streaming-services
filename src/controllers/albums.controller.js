@@ -1,4 +1,4 @@
-const { albumModel } = require("../models");
+const { albumModel, songModel } = require("../models");
 const fs = require("fs-extra");
 const { uploadAlbum } = require("../utils/cloudinary");
 
@@ -21,7 +21,7 @@ const albumController = {
             }
             console.log(album)
             res.status(200).send(
-               album
+                album
             )
         } catch (error) {
             res.status(500).send({
@@ -115,12 +115,14 @@ const albumController = {
                 return res.status(404).send({
                     status: false,
                     msg: `album ${albumId} not found`
-                }
-                )
+                });
             }
+
+            await songModel.deleteMany({album:albumId});
+
             res.status(200).send({
                 status: true,
-                msg: "Album delete",
+                msg: "Album and related songs deleted",
                 data: deletedAlbum,
             })
         } catch (error) {
