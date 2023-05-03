@@ -1,4 +1,4 @@
-const { songModel, albumModel } = require("../models");
+const { songModel } = require("../models");
 const fs = require("fs-extra")
 
 const songController = {
@@ -38,14 +38,6 @@ const songController = {
                     ...body,
                 });
 
-            const updateAlbum = await albumModel.findByIdAndUpdate(
-                { _id: body.album },
-                { "$push": { songs: song._id } },
-                { new: true }
-            )
-
-            console.log(updateAlbum)
-
             res.status(200).send({
                 status: true,
                 msg: "Song sucessfully created",
@@ -66,4 +58,4 @@ const songController = {
     }
 }
 
-module.exports = { songController };
+module.exports = {songController};
