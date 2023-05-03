@@ -60,9 +60,9 @@ const songController = {
         }
     },
     updateSong: async (req, res, next) => {
-        const { body: bodyRequest, params: {idSong} } = req;
+        const { body: bodyRequest, params: { idSong } } = req;
 
-        if('album' in bodyRequest){
+        if ('album' in bodyRequest) {
             res.status(409).send({
                 status: false,
                 msg: "You couldn't modify the album of the song"
@@ -73,12 +73,15 @@ const songController = {
         try {
             const song = await songModel
                 .findOneAndUpdate(
-                    { _id: idSong },
+                    {
+                        _id: idSong,
+                        owner: bodyRequest.idOwner
+                    },
                     {
                         ...bodyRequest
                     }
                 );
-   
+
             res.status(200).send({
                 status: true,
                 msg: "Song successfully updated",
@@ -91,6 +94,9 @@ const songController = {
                 data: err.message
             })
         }
+    },
+    deleteSong: async (req, res, next) => {
+
     }
 }
 
