@@ -17,7 +17,7 @@ const UserSchema = new Schema({
         type: String
     },
     follows:[{
-        type: Types.ObjectId,
+        type: String,
         ref: "follows"
     }],
     followers:[{
@@ -47,9 +47,11 @@ const UserSchema = new Schema({
     role:{
         type: Number,
         default: 1
+    },
+    status:{
+        type: Number,
+        default: 1
     }
-    
-
 })
 
 const UserModel = model("User", UserSchema)
