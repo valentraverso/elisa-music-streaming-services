@@ -32,9 +32,9 @@ const songController = {
         }
     },
     getByTitle: async (req, res, next) => {
-        const {params: {songTitle}} = req;
+        const { params: { songTitle } } = req;
 
-        if(!songTitle || songTitle.length > 50){
+        if (!songTitle || songTitle.length > 50) {
             res.status(409).send({
                 status: false,
                 msg: "The title need to have less than 50 characters"
@@ -42,24 +42,33 @@ const songController = {
             return;
         }
 
-        try{
+        try {
             const song = await songModel
-            .find({
-                title: {"$eq": songTitle}
-            })
-            .lean()
-            .exec();
+                .find({
+                    "title": {
+                        "$regex": songTitle,
+                        "$options": "i"
+                    }
+                })
+
+            if (song.length <= 0) {
+                res.status(404).send({
+                    status: false,
+                    msg: "We couldn't find songs"
+                })
+                return;
+            }
 
             res.status(200).send({
                 status: true,
                 msg: "We find song with this title.",
                 data: song
             })
-        }catch(err){
+        } catch (err) {
             res.status(503).send({
                 status: false,
                 msg: "Error",
-                data: err
+                data: err.message
             });
         }
     },
@@ -93,7 +102,7 @@ const songController = {
                         secure_url
                     }
                 });
-            
+
 
             await albumModel.findByIdAndUpdate(
                 { _id: body.album },
