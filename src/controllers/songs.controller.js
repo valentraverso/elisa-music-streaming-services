@@ -5,15 +5,14 @@ const songController = {
     getAllSongs: async (req, res) => {
         try {
             const song = await songModel
-                .find({ _id: -1 })
-                .populate("albums")
-                .lean()
-                .exec();
+                .find({})
+                .populate("album");
+
 
             if (!song) {
                 res.status(404).send({
                     status: false,
-                    msg: "We don't find"
+                    msg: "We couldn't find songs"
                 })
             }
 
@@ -25,7 +24,8 @@ const songController = {
         } catch (err) {
             res.status(500).send({
                 status: false,
-                msg: err
+                msg: "We have problems while fetching the data",
+                data: err
             })
         }
     },
@@ -59,10 +59,38 @@ const songController = {
             });
         }
     },
-    consoleSong: async (next) => {
-        console.log("console song")
+    updateSong: async (req, res, next) => {
+        const { body: bodyRequest, params: {idSong} } = req;
 
-        next();
+        if('album' in bodyRequest){
+            res.status(409).send({
+                status: false,
+                msg: "You couldn't modify the album of the song"
+            })
+            return;
+        }
+
+        try {
+            const song = await songModel
+                .findOneAndUpdate(
+                    { _id: idSong },
+                    {
+                        ...bodyRequest
+                    }
+                );
+   
+            res.status(200).send({
+                status: true,
+                msg: "Song successfully updated",
+                data: song
+            })
+        } catch (err) {
+            res.status(500).send({
+                status: false,
+                msg: "We have problems while updating the data",
+                data: err.message
+            })
+        }
     }
 }
 

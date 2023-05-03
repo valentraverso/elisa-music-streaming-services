@@ -2,13 +2,11 @@ const express = require("express");
 const router = express.Router();
 const { songController } = require("../controllers");
 
-const { postSong } = songController;
+const { postSong, getAllSongs, updateSong } = songController;
 
 router
-    .get("/all", () => {
-        console.log("hola")
-    })
+    .get("/all", getAllSongs)
     .post("/post", postSong)
-
+    .patch("/update/:idSong", updateSong)
 
 module.exports = router;
