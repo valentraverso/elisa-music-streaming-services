@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const { songModel, albumModel } = require("../models");
 const fs = require("fs-extra")
 
@@ -62,6 +63,14 @@ const songController = {
     updateSong: async (req, res, next) => {
         const { body: bodyRequest, params: { idSong } } = req;
 
+        if(!mongoose.Types.ObjectId.isValid(idSong)){
+            res.status(409).send({
+                status: false,
+                msg: "Invalid ID"
+            })
+            return;
+        }
+
         if ('album' in bodyRequest) {
             res.status(409).send({
                 status: false,
@@ -96,7 +105,33 @@ const songController = {
         }
     },
     deleteSong: async (req, res, next) => {
+        const { body: { idOwner }, params: { idSong } } = req;
 
+        if(!mongoose.Types.ObjectId.isValid(idSong)){
+            res.status(409).send({
+                status: false,
+                msg: "Invalid ID"
+            });
+            return;
+        }
+
+        try {
+            const song = await songModel
+                .findOneAndDelete({
+                    _id: idSong,
+                    owner: idOwner
+                });
+
+                res.status(200).send({
+                    status: true,
+                    msg: "Song deleted successfully"
+                })
+        } catch (err) {
+            res.status(500).send({
+                status: false,
+                msg: "We have a problem while deleting the song."
+            })
+        }
     }
 }
 
