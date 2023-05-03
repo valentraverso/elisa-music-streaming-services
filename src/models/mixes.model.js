@@ -6,7 +6,7 @@ const mixSchema = new mongoose.Schema({
   songs: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Song',
+      ref: 'songs',
       required: true,
     },
   ],
@@ -19,6 +19,6 @@ const mixSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
-const mixModel = mongoose.model('Mix', mixSchema);
+const mixModel = mongoose.model('mixes', mixSchema);
 
 module.exports = mixModel;

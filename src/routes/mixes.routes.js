@@ -12,10 +12,11 @@ const {
 } = mixController;
 
 // Define your routes here
-router.get("/", getAllMixes);
-router.get("/:id", getMixById);
-router.post("/", createMix);
-router.put("/:id", updateMixById);
-router.delete("/:id", deleteMixById);
+router.get("/mixes", getAllMixes);
+router.get("/mixes/:id", getMixById);
+router.post("/mixes", createMix);
+router.put("/mixes/:id", updateMixById);
+router.delete("/mixes/:id", deleteMixById);
+
 
 module.exports = router;
