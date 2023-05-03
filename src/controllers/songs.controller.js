@@ -198,4 +198,4 @@ const songController = {
     }
 }
 
-module.exports = { songController };
+module.exports = {songController};
