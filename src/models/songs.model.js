@@ -40,7 +40,7 @@ const songSchema = new Schema ({
     album: {
         type: Schema.Types.ObjectId,
         required: [true, "You must provide the album of the song"],
-        // max: [1, "The album could only be linked to 1 album"],
+        max: [1, "The album could only be linked to 1 album"],
         ref: "albums",
         index: true
     },
