@@ -25,6 +25,32 @@ const mixController = {
         }
     },
 
+    getMixByName: async (req, res) => {
+        try {
+            const mixName = req.params.name;
+            const mix = await mixModel.findOne({ name: mixName });
+    
+            if (!mix) {
+                return res.status(404).send({
+                    status: false,
+                    msg: `Could not find mix with name ${mixName}`,
+                });
+            }
+    
+            res.status(200).send({
+                status: true,
+                msg: 'Mix found',
+                data: mix,
+            });
+        } catch (error) {
+            res.status(500).send({
+                status: false,
+                msg: error,
+            });
+        }
+    },
+    
+
     getMixById: async (req, res) => {
         try {
             const mixId = req.params.id;

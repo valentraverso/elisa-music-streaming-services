@@ -5,7 +5,10 @@ const connectDB = require("./utils/connectDB.js");
 const jwtCheck = require("./utils/authz.js")
 const {
     albumRouter,
-    songRouter
+    songRouter,
+    userRouter,
+    mixesRouter,
+    genreRouter
 }= require("./routes")
 const {
     PORT,
@@ -29,7 +32,10 @@ app.use(fileUpload({
 // Conect DB
 connectDB(app, PORT, DB);
 
-//Routes
+//Routes 
 
 app.use("/albums", albumRouter)
 app.use("/songs", songRouter)
+app.use("/users", userRouter)
+app.use("/mixes", mixesRouter)
+app.use("/genres", genreRouter)

@@ -50,10 +50,23 @@ const genreController = {
 
     deleteGenreById: async (req, res) => {
         try {
-            const genre = await genreModel.findById(req.params.id);
+          const deletedGenre = await genreModel.findOneAndDelete({ _id: req.params.id });
+          if (deletedGenre) {
+            res.status(200).json({ message: "Genre deleted" });
+          } else {
+            res.status(404).json({ message: "Genre not found" });
+          }
+        } catch (error) {
+          res.status(500).json({ message: error.message });
+        }
+      },
+      
+    
+    getGenreByTitle: async (req, res) => {
+        try {
+            const genre = await genreModel.findOne({ name: req.params.name });
             if (genre) {
-                await genre.remove();
-                res.status(200).json({ message: "Genre deleted" });
+                res.status(200).json(genre);
             } else {
                 res.status(404).json({ message: "Genre not found" });
             }
@@ -63,4 +76,4 @@ const genreController = {
     },
 };
 
-module.exports = genreController;
+module.exports = { genreController };
