@@ -123,7 +123,6 @@ const albumController = {
             res.status(200).send({
                 status: true,
                 msg: "Album and related songs deleted",
-                data: deletedAlbum,
             })
         } catch (error) {
             res.status(500).send({

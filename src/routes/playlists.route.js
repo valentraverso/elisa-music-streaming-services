@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const { playlistsController } = require("../controllers");
+const { playlistController } = require("../controllers");
 
-const { getAllPlaylists, createPlaylist, getPlaylistById, updatePlaylist, deletePlaylist } = playlistsController;
+const { getAllPlaylist, createPlaylist, getPlaylistById, updatePlaylist, deletePlaylist } = playlistController;
 
 router
-    .get("/all", getAllPlaylists)
+    .get("/all", getAllPlaylist)
     .get("/id/:id", getPlaylistById)
     .post("/create", createPlaylist)
     .patch("/update/id", updatePlaylist)
