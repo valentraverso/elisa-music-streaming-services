@@ -72,6 +72,43 @@ const songController = {
             });
         }
     },
+    getById: async (req, res, next) => {
+        const { params: { idSong } } = req
+
+        if (!mongoose.Types.ObjectId.isValid(idSong)) {
+            res.status(409).send({
+                status: false,
+                msg: "Invalid ID"
+            })
+            return;
+        }
+
+        try {
+            const song = await songModel
+                .findById(idSong)
+                .lean()
+                .exec();
+
+            if (!song) {
+                res.status(404).send({
+                    status: false,
+                    msg: "We couldn't find a song with this Id"
+                })
+            }
+
+            res.status(200).send({
+                status: true,
+                msg: "We find a song.",
+                data: song
+            });
+        } catch (err) {
+            res.status(503).send({
+                status: false,
+                msg: "Error while fetching song.",
+                data: err
+            });
+        }
+    },
     postSong: async (req, res) => {
         const { body, files } = req;
 
@@ -151,6 +188,9 @@ const songController = {
                     },
                     {
                         ...bodyRequest
+                    },
+                    {
+                        new: true
                     }
                 );
 
@@ -198,4 +238,4 @@ const songController = {
     }
 }
 
-module.exports = {songController};
+module.exports = { songController };

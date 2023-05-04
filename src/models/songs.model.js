@@ -1,6 +1,10 @@
 const {Schema, model, Types} = require("mongoose");
 
 const songSchema = new Schema ({
+    owner: {
+        type: Types.ObjectId,
+        required: true
+    },
     title: {
         type: String,
         required: [true, "You must provide the title of the song"],
