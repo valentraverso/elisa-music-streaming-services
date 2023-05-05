@@ -1,8 +1,8 @@
 const albumRouter = require("./albums.route");
-const mixesRouter = require("./mixes.routes");
+const mixesRouter = require("./mixes.route");
 const songRouter = require("./songs.route");
-const userRouter = require("./users.routes");
-const genreRouter = require("./genre.routes");
+const userRouter = require("./users.route");
+const genreRouter = require("./genre.route");
 
 module.exports = {
     albumRouter,
