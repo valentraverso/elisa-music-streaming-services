@@ -105,6 +105,35 @@ const albumController = {
             })
         }
     },
+    getByTitle: async (req, res) => {
+        try {
+            const albumTitle = req.params.title;
+            const album = await albumModel
+                .findOne({ title: albumTitle })
+                .populate({
+                    path: "songs",
+                    populate: "album"
+                });
+            
+            if (!album) {
+                return res.status(404).send({
+                    status: false,
+                    msg: `Album with title "${albumTitle}" not found`,
+                });
+            }
+            
+            res.status(200).send({
+                status: true,
+                msg: "Album found",
+                data: album,
+            });
+        } catch (error) {
+            res.status(500).send({
+                status: false,
+                msg: error,
+            });
+        }
+    },    
     deleteAlbum: async (req, res) => {
         try {
             const albumId = req.params.id
