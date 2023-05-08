@@ -33,7 +33,7 @@ const userController = {
                 .lean()
                 .exec();
 
-            if (!user) {
+            if (!user || user.length === 0) {
                 res.status(404).send({
                     status: false,
                     msg: "We coundn't find your user",
