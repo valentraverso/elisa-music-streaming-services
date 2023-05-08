@@ -86,6 +86,7 @@ const songController = {
         try {
             const song = await songModel
                 .findById(idSong)
+                .populate("album")
                 .lean()
                 .exec();
 
