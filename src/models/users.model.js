@@ -7,7 +7,8 @@ const UserSchema = new Schema({
     },
     email:{
         type: String,
-        required: [true, 'The email is requerid']
+        required: [true, 'The email is requerid'],
+        unique: true
     },
     picture:{
         type: String
@@ -17,7 +18,7 @@ const UserSchema = new Schema({
         type: String
     },
     follows:[{
-        type: Types.ObjectId,
+        type: String,
         ref: "follows"
     }],
     followers:[{
@@ -47,9 +48,11 @@ const UserSchema = new Schema({
     role:{
         type: Number,
         default: 1
+    },
+    status:{
+        type: Number,
+        default: 1
     }
-    
-
 })
 
 const UserModel = model("User", UserSchema)

@@ -6,7 +6,10 @@ const jwtCheck = require("./utils/authz.js")
 const {
     albumRouter,
     songRouter,
-    userRouter
+    userRouter,
+    mixesRouter,
+    genreRouter,
+    playlistsRouter
 }= require("./routes")
 const {
     PORT,
@@ -18,9 +21,9 @@ const fileUpload = require("express-fileupload")
 const app = express();
 
 // Middlewares
-app.use(jwtCheck);
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
+app.use(jwtCheck);
 app.use(helmet());
 app.use(fileUpload({
     useTempFiles : true,
@@ -35,3 +38,8 @@ connectDB(app, PORT, DB);
 app.use("/albums", albumRouter)
 app.use("/songs", songRouter)
 app.use("/users", userRouter)
+app.use("/mixes", mixesRouter)
+app.use("/genres", genreRouter)
+app.use("/playlists", playlistsRouter)
+
+console.log("Nuevo Usuario")

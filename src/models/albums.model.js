@@ -5,7 +5,7 @@ const albumSchema = new Schema({
         type: String,
         required: [true, "You need to add the title for the album"],
         minlength: [2, "Title must be at least 2 characters long"],
-        maxlength: [20, "Title cannot be more than 20 characters long"]
+        maxlength: [40, "Title cannot be more than 20 characters long"]
     },
     artist: {
         type: String,
@@ -13,7 +13,6 @@ const albumSchema = new Schema({
     },
     songs: [{
         type: Schema.Types.ObjectId,
-        required: true,
         ref: "songs",
         default: []
         }],
@@ -22,8 +21,8 @@ const albumSchema = new Schema({
         required: [true, "You need to add the release date for the album"]
     },
     img: {
-        type: Object,
-        required: [true, "You need to add the image for the album"]
+        public_id: {type: String, required: true},
+        secure_url: {type: String, required: true}
     },
     statistics: {
         type: Schema.Types.ObjectId,
@@ -32,7 +31,12 @@ const albumSchema = new Schema({
     discography: {
         type: String,
         required: [true, "You need to add the discography for the album"]
-    }
+    },
+    owner: {
+        type: Schema.Types.ObjectId,
+        ref: "users",
+        required: true,
+    },
 },
 {timestamps:true}
 );

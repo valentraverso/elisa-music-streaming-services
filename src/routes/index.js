@@ -1,11 +1,14 @@
 const albumRouter = require("./albums.route");
-const mixesRoute = require("./mixes.routes");
+const mixesRouter = require("./mixes.route");
 const songRouter = require("./songs.route");
-const userRouter = require("./users.routes")
-
+const userRouter = require("./users.route");
+const genreRouter = require("./genre.route");
+const playlistsRouter = require("./playlists.route")
 module.exports = {
     albumRouter,
-    mixesRoute,
+    mixesRouter,
     songRouter,
-    userRouter
+    userRouter,
+    genreRouter,
+    playlistsRouter
 }

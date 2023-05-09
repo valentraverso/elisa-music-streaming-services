@@ -1,4 +1,4 @@
-const { albumModel } = require("../models");
+const { albumModel, songModel } = require("../models");
 const fs = require("fs-extra");
 const { uploadAlbum } = require("../utils/cloudinary");
 
@@ -21,7 +21,7 @@ const albumController = {
             }
             console.log(album)
             res.status(200).send(
-               album
+                album
             )
         } catch (error) {
             res.status(500).send({
@@ -105,6 +105,35 @@ const albumController = {
             })
         }
     },
+    getByTitle: async (req, res) => {
+        try {
+            const albumTitle = req.params.title;
+            const album = await albumModel
+                .findOne({ title: albumTitle })
+                .populate({
+                    path: "songs",
+                    populate: "album"
+                });
+            
+            if (!album) {
+                return res.status(404).send({
+                    status: false,
+                    msg: `Album with title "${albumTitle}" not found`,
+                });
+            }
+            
+            res.status(200).send({
+                status: true,
+                msg: "Album found",
+                data: album,
+            });
+        } catch (error) {
+            res.status(500).send({
+                status: false,
+                msg: error,
+            });
+        }
+    },    
     deleteAlbum: async (req, res) => {
         try {
             const albumId = req.params.id
@@ -115,13 +144,14 @@ const albumController = {
                 return res.status(404).send({
                     status: false,
                     msg: `album ${albumId} not found`
-                }
-                )
+                });
             }
+
+            await songModel.deleteMany({album:albumId});
+
             res.status(200).send({
                 status: true,
-                msg: "Album delete",
-                data: deletedAlbum,
+                msg: "Album and related songs deleted",
             })
         } catch (error) {
             res.status(500).send({
