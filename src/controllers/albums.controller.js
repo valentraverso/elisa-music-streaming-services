@@ -32,12 +32,12 @@ const albumController = {
     },
     createAlbum: async (req, res) => {
         const { body, files } = req
-        console.log(files)
         if (!files.img) {
             res.status(409).send({
                 status: false,
                 msg: "You need to add a image",
             })
+            return;
         }
         try {
             const { public_id, secure_url } = await uploadAlbum(files.img.tempFilePath)
