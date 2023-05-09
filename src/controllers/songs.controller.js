@@ -1,7 +1,9 @@
 const mongoose = require("mongoose");
 const { songModel, albumModel } = require("../models");
 const fs = require("fs-extra");
-const { uploadSong } = require("../utils/cloudinary");
+const uploadMultipleSongs = require("../utils/upload_multiple_songs");
+const {uploadSong} = require("../utils/cloudinary");
+const switchUploadSong = require("../utils/switch_upload_song");
 
 const songController = {
     getAllSongs: async (req, res) => {
@@ -111,34 +113,33 @@ const songController = {
         }
     },
     postSong: async (req, res) => {
-        const { body, files } = req;
+        const { body, files: { songFile } } = req;
 
-        if (!mongoose.Types.ObjectId.isValid(body.album)) {
-            res.status(409).send({
-                status: false,
-                msg: "Invalid ID"
-            })
-            return;
-        }
+        // if (!mongoose.Types.ObjectId.isValid(body.album)) {
+        //     res.status(409).send({
+        //         status: false,
+        //         msg: "Invalid ID"
+        //     })
+        //     return;
+        // }
 
-        if (!files.songFile) {
+        if (!songFile) {
             res.status(409).send({
                 status: false,
                 msg: "You need to add a song file",
             })
         }
-
+        console.log(typeof songFile)
+        console.log("file", songFile)
         try {
-            const { public_id, secure_url } = await uploadSong(files.songFile.tempFilePath)
-            await fs.unlink(files.songFile.tempFilePath)
+            const data = await switchUploadSong(body, songFile)
+            
+          
 
+            console.log("data", data)
             const song = await songModel
-                .create({
-                    ...body,
-                    file: {
-                        public_id,
-                        secure_url
-                    }
+                .insertMany({
+                    ...data
                 });
 
 
@@ -157,7 +158,7 @@ const songController = {
             res.status(503).send({
                 status: false,
                 msg: "Error",
-                data: err
+                data: err.message
             });
         }
     },
