@@ -7,7 +7,8 @@ const UserSchema = new Schema({
     },
     email:{
         type: String,
-        required: [true, 'The email is requerid']
+        required: [true, 'The email is requerid'],
+        unique: true
     },
     picture:{
         type: String
