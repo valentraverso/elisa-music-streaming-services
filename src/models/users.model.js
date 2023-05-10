@@ -25,10 +25,6 @@ const UserSchema = new Schema({
         type: Types.ObjectId,
         ref: "followers"
     }],
-    songs:[{
-        type: Types.ObjectId,
-        ref: "songs"
-    }],
     playlists:[{
         type: Types.ObjectId,
         ref: "playlists"

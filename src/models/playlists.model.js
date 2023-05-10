@@ -20,6 +20,14 @@ const playlistSchema = new Schema({
     img: {
         public_id: {type: String, required: true},
         secure_url: {type: String, required: true}
+    },
+    likePlaylist: {
+        type: Boolean,
+        default: false
+    },
+    private: {
+        type: Boolean,
+        default: true
     }
 }, { timestamps: true });
 

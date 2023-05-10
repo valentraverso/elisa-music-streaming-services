@@ -18,7 +18,7 @@ const switchUploadSong = async (body, arraySongs) => {
                     secure_url
                 }
             }
-            console.log(dataResponse)
+            
             return dataResponse
     }
 }
