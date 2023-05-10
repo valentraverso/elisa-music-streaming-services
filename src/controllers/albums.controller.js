@@ -19,7 +19,6 @@ const albumController = {
                     msg: "We coundn't find albums",
                 })
             }
-            console.log(album)
             res.status(200).send(
                 album
             )

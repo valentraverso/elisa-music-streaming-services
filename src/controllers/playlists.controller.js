@@ -30,8 +30,20 @@ const playlistController = {
     createPlaylist: async (req, res) => {
         const { body } = req
         try {
+            async function imgAlbum() {
+                if (body.likePlaylist) {
+                    return {
+                        public_id: "Home/playlists/liked",
+                        secure_url: "https://res.cloudinary.com/dppekhvoo/image/upload/v1683710140/Home/playlists/Systems_and_technology_programming_company_logo_luvnme.png"
+                    }
+                }
+            }
+
+            const img = await imgAlbum();
+
             const newPlaylist = await playlistModel.create({
-                ...body
+                ...body,
+                img
             });
 
             res.status(201).send({
@@ -126,7 +138,7 @@ const playlistController = {
                 });
             }
 
-            await songModel.updateMany({playlists:playlistId}, {$pull: {playlists:playlistId}});
+            await songModel.updateMany({ playlists: playlistId }, { $pull: { playlists: playlistId } });
 
             res.status(200).send({
                 status: true,
