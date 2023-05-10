@@ -8,7 +8,7 @@ const switchUploadSong = async (body, arraySongs) => {
         case "array":
             return uploadMultipleSongs(body, arraySongs);
         case "object":
-            const { public_id, secure_url } = uploadSong(arraySongs.tempFilePath);
+            const { public_id, secure_url } = await uploadSong(arraySongs.tempFilePath);
             await fs.unlink(arraySongs.tempFilePath)
 
             const dataResponse = {
