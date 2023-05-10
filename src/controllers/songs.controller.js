@@ -69,7 +69,7 @@ const songController = {
         } catch (err) {
             res.status(503).send({
                 status: false,
-                msg: "Error",
+                msg: "Error2",
                 data: err.message
             });
         }
@@ -129,13 +129,14 @@ const songController = {
                 msg: "You need to add a song file",
             })
         }
-        console.log(typeof songFile)
-        console.log("file", songFile)
+        // console.log(typeof songFile)
+        // console.log("file", songFile)
+        console.log("hola1")
         try {
             const data = await switchUploadSong(body, songFile)
             
           
-
+            console.log("hola2")
             console.log("data", data)
             const song = await songModel
                 .insertMany({
