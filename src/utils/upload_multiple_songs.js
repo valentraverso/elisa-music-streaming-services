@@ -19,6 +19,7 @@ async function uploadMultipleSongs(body, arraySongs) {
             album: body.album[index]
         }
         data.push(dataToPush)
+        console.log("datamultiple",data)
     }
         return data;
 
