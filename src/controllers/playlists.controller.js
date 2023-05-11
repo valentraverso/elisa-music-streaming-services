@@ -130,7 +130,7 @@ const playlistController = {
                 });
             }
 
-            await songModel.updateMany({playlists:playlistId}, {$pull: {playlists:playlistId}});
+            await songModel.updateMany({ playlists: playlistId }, { $pull: { playlists: playlistId } });
 
             res.status(200).send({
                 status: true,
