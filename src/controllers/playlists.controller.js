@@ -27,29 +27,45 @@ const playlistController = {
             })
         }
     },
+    getByOwner: async (req, res) => {
+        const { params: { idOwner } } = req;
+
+        try {
+            const playlist = await song
+                .find({ owner: idOwner })
+                .lean()
+                .exec();
+
+            console.log(playlist)
+        } catch (err) {
+            res.status(503).send({
+                status: false,
+                msg: err
+            })
+        }
+    },
     createPlaylist: async (req, res) => {
         const { body } = req
         try {
-          const newPlaylist = await playlistModel.create({
-              title: body.title,
-              owner: body.owner,
-              songs: body.songs,
-              img: body.img
-          });
-      
-          res.status(201).send({
-              status: true,
-              msg: "We create a new playlist",
-              data: newPlaylist,
-          })
+            const newPlaylist = await playlistModel.create({
+                title: body.title,
+                owner: body.owner,
+                songs: body.songs,
+                img: body.img
+            });
+
+            res.status(201).send({
+                status: true,
+                msg: "We create a new playlist",
+                data: newPlaylist,
+            })
         } catch (error) {
-          res.status(500).send({
-              status: false,
-              msg: error,
-          })
+            res.status(500).send({
+                status: false,
+                msg: error,
+            })
         }
-      },
-      
+    },
     getByTitle: async (req, res) => {
         try {
             const playlistTitle = req.params.title;
