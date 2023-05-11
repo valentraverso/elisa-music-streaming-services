@@ -4,26 +4,25 @@ const { uploadAlbum } = require("../utils/cloudinary");
 
 
 const albumController = {
-getAllAlbum: async (req, res) => {
-  try {
-    const albums = await albumModel.find({}).populate("songs");
-    if (!albums) {
-      res.status(404).send({
-        status: false,
-        msg: "We couldn't find albums",
-      });
-      return;
+    getAllAlbum: async (req, res) => {
+        try {
+            const albums = await albumModel.find({}).populate("songs");
+            if (!albums) {
+                res.status(404).send({
+                    status: false,
+                    msg: "We couldn't find albums",
+                });
+                return;
+            }
+            res.status(200).send(albums);
+        } catch (error) {
+            res.status(500).send({
+                status: false,
+                msg: error,
+            });
+        }
     }
-    console.log(albums);
-    res.status(200).send(albums);
-  } catch (error) {
-    res.status(500).send({
-      status: false,
-      msg: error,
-    });
-  }
-}
-,
+    ,
     createAlbum: async (req, res) => {
         const { body, files } = req
         if (!files.img) {
@@ -76,28 +75,34 @@ getAllAlbum: async (req, res) => {
     },
     getById: async (req, res) => {
         try {
-          const albumId = req.params.id
-          const album = await albumModel.findById(albumId)
-      
-          if (!album) {
-            return res.status(404).send({
-              status: false,
-              msg: `album ${albumId} not found`
+            const albumId = req.params.id
+            const album = await albumModel
+            .findById(albumId)
+            .populate("songs")
+            .lean()
+            .exec();
+
+            console.log(album)
+
+            if (!album) {
+                return res.status(404).send({
+                    status: false,
+                    msg: `album ${albumId} not found`
+                })
+            }
+            res.status(200).send({
+                status: true,
+                msg: "Album found it",
+                data: album
             })
-          }
-          res.status(200).send({
-            status: true,
-            msg: "Album found it",
-            data: album
-          })
         } catch (error) {
-          res.status(500).send({
-            status: false,
-            msg: error,
-          })
+            res.status(500).send({
+                status: false,
+                msg: error,
+            })
         }
-      },
-      
+    },
+
     getByTitle: async (req, res) => {
         try {
             const albumTitle = req.params.title;
@@ -107,14 +112,14 @@ getAllAlbum: async (req, res) => {
                     path: "songs",
                     populate: "album"
                 });
-            
+
             if (!album) {
                 return res.status(404).send({
                     status: false,
                     msg: `Album with title "${albumTitle}" not found`,
                 });
             }
-            
+
             res.status(200).send({
                 status: true,
                 msg: "Album found",
@@ -126,7 +131,7 @@ getAllAlbum: async (req, res) => {
                 msg: error,
             });
         }
-    },    
+    },
     deleteAlbum: async (req, res) => {
         try {
             const albumId = req.params.id
@@ -140,7 +145,7 @@ getAllAlbum: async (req, res) => {
                 });
             }
 
-            await songModel.deleteMany({album:albumId});
+            await songModel.deleteMany({ album: albumId });
 
             res.status(200).send({
                 status: true,
