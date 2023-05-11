@@ -109,7 +109,7 @@ const albumController = {
         try {
             const albumTitle = req.params.title;
             const album = await albumModel
-                .findOne({ title: albumTitle })
+                .find({ title: albumTitle })
                 .populate({
                     path: "songs",
                     populate: "album"
