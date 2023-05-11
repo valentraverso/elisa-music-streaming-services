@@ -84,7 +84,7 @@ const albumController = {
         try {
             const albumId = req.params.id
             const album = await albumModel
-                .findById({ albumId })
+                .findById( albumId )
 
             if (!album) {
                 return res.status(404).send({
