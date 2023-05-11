@@ -17,7 +17,7 @@ const songSchema = new Schema ({
         index: true
     },
     feat: [{
-        type: Schema.Types.ObjectId,
+        type: String,
         required: false,
         max: [100, "You pass the max of 100 characters"],
         ref: "users"

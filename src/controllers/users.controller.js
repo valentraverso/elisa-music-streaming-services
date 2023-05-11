@@ -26,10 +26,11 @@ const userController = {
         }
     },
     getBySub: async (req, res) => {
-        const { userSub } = req.params;
+        const { auth: { payload: { sub } } } = req;
+
         try {
             const user = await UserModel
-                .find({ sub: userSub })
+                .find({ sub: sub })
                 .lean()
                 .exec();
 

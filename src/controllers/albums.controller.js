@@ -6,38 +6,36 @@ const { uploadAlbum } = require("../utils/cloudinary");
 const albumController = {
     getAllAlbum: async (req, res) => {
         try {
-            const album = await albumModel
-                .find({})
-                .populate({
-                    path: "songs",
-                    populate: "album"
-                });
+            const albums = await albumModel
+            .find({})
+            .sort({_id: -1})
+            .populate("songs")
+            .limit(6);
 
-            if (!album) {
+            if (!albums) {
                 res.status(404).send({
                     status: false,
-                    msg: "We coundn't find albums",
-                })
+                    msg: "We couldn't find albums",
+                });
+                return;
             }
-            console.log(album)
-            res.status(200).send(
-                album
-            )
+            res.status(200).send(albums);
         } catch (error) {
             res.status(500).send({
                 status: false,
-                msg: error
-            })
+                msg: error,
+            });
         }
-    },
+    }
+    ,
     createAlbum: async (req, res) => {
         const { body, files } = req
-        console.log(files)
         if (!files.img) {
             res.status(409).send({
                 status: false,
                 msg: "You need to add a image",
             })
+            return;
         }
         try {
             const { public_id, secure_url } = await uploadAlbum(files.img.tempFilePath)
@@ -84,14 +82,16 @@ const albumController = {
         try {
             const albumId = req.params.id
             const album = await albumModel
-                .findById( albumId )
+            .findById(albumId)
+            .populate("songs")
+            .lean()
+            .exec();
 
             if (!album) {
                 return res.status(404).send({
                     status: false,
                     msg: `album ${albumId} not found`
-                }
-                )
+                })
             }
             res.status(200).send({
                 status: true,
@@ -114,14 +114,14 @@ const albumController = {
                     path: "songs",
                     populate: "album"
                 });
-            
+
             if (!album) {
                 return res.status(404).send({
                     status: false,
                     msg: `Album with title "${albumTitle}" not found`,
                 });
             }
-            
+
             res.status(200).send({
                 status: true,
                 msg: "Album found",
@@ -133,7 +133,7 @@ const albumController = {
                 msg: error,
             });
         }
-    },    
+    },
     deleteAlbum: async (req, res) => {
         try {
             const albumId = req.params.id
@@ -147,7 +147,7 @@ const albumController = {
                 });
             }
 
-            await songModel.deleteMany({album:albumId});
+            await songModel.deleteMany({ album: albumId });
 
             res.status(200).send({
                 status: true,
