@@ -62,6 +62,7 @@ const albumController = {
     updateAlbum: async (req, res) => {
         try {
             const albumId = req.params.id
+            
             const updatedAlbum = await albumModel.findByIdAndUpdate(
                 albumId,
                 req.body,
