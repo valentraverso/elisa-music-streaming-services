@@ -6,7 +6,12 @@ const { uploadAlbum } = require("../utils/cloudinary");
 const albumController = {
     getAllAlbum: async (req, res) => {
         try {
-            const albums = await albumModel.find({}).populate("songs");
+            const albums = await albumModel
+            .find({})
+            .sort({_id: -1})
+            .populate("songs")
+            .limit(6);
+
             if (!albums) {
                 res.status(404).send({
                     status: false,
@@ -82,8 +87,6 @@ const albumController = {
             .lean()
             .exec();
 
-            console.log(album)
-
             if (!album) {
                 return res.status(404).send({
                     status: false,
@@ -102,7 +105,6 @@ const albumController = {
             })
         }
     },
-
     getByTitle: async (req, res) => {
         try {
             const albumTitle = req.params.title;
