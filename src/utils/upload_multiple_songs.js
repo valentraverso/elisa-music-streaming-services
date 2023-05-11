@@ -13,13 +13,14 @@ async function uploadMultipleSongs(body, arraySongs) {
                 public_id,
                 secure_url,
             },
-            owner: body.owner[index],
             title: body.title[index],
+            artist: body.artist[index],
             feat: body.feat[index],
-            album: body.album[index]
+            album: body.album[index],
+            owner: body.owner[index]
         }
         data.push(dataToPush)
-        console.log("datamultiple",data)
+
     }
         return data;
 

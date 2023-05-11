@@ -4,31 +4,26 @@ const { uploadAlbum } = require("../utils/cloudinary");
 
 
 const albumController = {
-    getAllAlbum: async (req, res) => {
-        try {
-            const album = await albumModel
-                .find({})
-                .populate({
-                    path: "songs",
-                    populate: "album"
-                });
-
-            if (!album) {
-                res.status(404).send({
-                    status: false,
-                    msg: "We coundn't find albums",
-                })
-            }
-            res.status(200).send(
-                album
-            )
-        } catch (error) {
-            res.status(500).send({
-                status: false,
-                msg: error
-            })
-        }
-    },
+getAllAlbum: async (req, res) => {
+  try {
+    const albums = await albumModel.find({}).populate("songs");
+    if (!albums) {
+      res.status(404).send({
+        status: false,
+        msg: "We couldn't find albums",
+      });
+      return;
+    }
+    console.log(albums);
+    res.status(200).send(albums);
+  } catch (error) {
+    res.status(500).send({
+      status: false,
+      msg: error,
+    });
+  }
+}
+,
     createAlbum: async (req, res) => {
         const { body, files } = req
         if (!files.img) {
@@ -81,29 +76,28 @@ const albumController = {
     },
     getById: async (req, res) => {
         try {
-            const albumId = req.params.id
-            const album = await albumModel
-                .findById({ albumId })
-
-            if (!album) {
-                return res.status(404).send({
-                    status: false,
-                    msg: `album ${albumId} not found`
-                }
-                )
-            }
-            res.status(200).send({
-                status: true,
-                msg: "Album found it",
-                data: album
+          const albumId = req.params.id
+          const album = await albumModel.findById(albumId)
+      
+          if (!album) {
+            return res.status(404).send({
+              status: false,
+              msg: `album ${albumId} not found`
             })
+          }
+          res.status(200).send({
+            status: true,
+            msg: "Album found it",
+            data: album
+          })
         } catch (error) {
-            res.status(500).send({
-                status: false,
-                msg: error,
-            })
+          res.status(500).send({
+            status: false,
+            msg: error,
+          })
         }
-    },
+      },
+      
     getByTitle: async (req, res) => {
         try {
             const albumTitle = req.params.title;

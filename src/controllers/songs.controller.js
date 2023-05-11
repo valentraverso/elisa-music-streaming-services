@@ -129,26 +129,23 @@ const songController = {
                 msg: "You need to add a song file",
             })
         }
-        // console.log(typeof songFile)
-        // console.log("file", songFile)
-        console.log("hola1")
+        
         try {
             const data = await switchUploadSong(body, songFile)
-            
-          
-            console.log("hola2")
-            console.log("data", data)
+
+            // console.log("EntryTry", data)
             const song = await songModel
-                .insertMany({
-                    ...data
-                });
+                .insertMany(
+                    data
+                );
+            
+                console.log("song", song)
 
-
-            await albumModel.findByIdAndUpdate(
-                { _id: body.album },
-                { "$push": { songs: song._id } },
-                { new: true }
-            )
+            // await albumModel.findByIdAndUpdate(
+            //     { _id: body.album },
+            //     { "$push": { songs: song._id } },
+            //     { new: true }
+            // )
 
             res.status(200).send({
                 status: true,
@@ -158,7 +155,7 @@ const songController = {
         } catch (err) {
             res.status(503).send({
                 status: false,
-                msg: "Error",
+                msg: "ErrorPost",
                 data: err.message
             });
         }

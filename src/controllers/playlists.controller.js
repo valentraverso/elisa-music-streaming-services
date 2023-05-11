@@ -30,34 +30,26 @@ const playlistController = {
     createPlaylist: async (req, res) => {
         const { body } = req
         try {
-            async function imgAlbum() {
-                if (body.likePlaylist) {
-                    return {
-                        public_id: "Home/playlists/liked",
-                        secure_url: "https://res.cloudinary.com/dppekhvoo/image/upload/v1683710140/Home/playlists/Systems_and_technology_programming_company_logo_luvnme.png"
-                    }
-                }
-            }
-
-            const img = await imgAlbum();
-
-            const newPlaylist = await playlistModel.create({
-                ...body,
-                img
-            });
-
-            res.status(201).send({
-                status: true,
-                msg: "We create a new playlist",
-                data: newPlaylist,
-            })
+          const newPlaylist = await playlistModel.create({
+              title: body.title,
+              owner: body.owner,
+              songs: body.songs,
+              img: body.img
+          });
+      
+          res.status(201).send({
+              status: true,
+              msg: "We create a new playlist",
+              data: newPlaylist,
+          })
         } catch (error) {
-            res.status(500).send({
-                status: false,
-                msg: error,
-            })
+          res.status(500).send({
+              status: false,
+              msg: error,
+          })
         }
-    },
+      },
+      
     getByTitle: async (req, res) => {
         try {
             const playlistTitle = req.params.title;
