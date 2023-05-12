@@ -69,22 +69,30 @@ const playlistController = {
     getByTitle: async (req, res) => {
         try {
             const playlistTitle = req.params.title;
-            const playlist = await playlistModel.findOne({ title: playlistTitle });
+            const playlist = await playlistModel
+                .find({
+                    "title": {
+                        "$regex": playlistTitle,
+                        "$options": "i"
+                    }
+                });
+
             if (!playlist) {
                 return res.status(404).send({
                     status: false,
-                    msg: `Playlist ${playlistTitle} not found`
+                    msg: `Playlist with title "${playlistTitle}" not found`,
                 });
             }
+
             res.status(200).send({
                 status: true,
                 msg: "Playlist found",
-                data: playlist
+                data: playlist,
             });
         } catch (error) {
             res.status(500).send({
                 status: false,
-                msg: error
+                msg: error,
             });
         }
     },

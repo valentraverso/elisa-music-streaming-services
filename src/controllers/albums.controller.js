@@ -109,7 +109,12 @@ const albumController = {
         try {
             const albumTitle = req.params.title;
             const album = await albumModel
-                .find({ title: albumTitle })
+            .find({
+                "title": {
+                    "$regex": albumTitle,
+                    "$options": "i"
+                }
+            })
                 .populate({
                     path: "songs",
                     populate: "album"

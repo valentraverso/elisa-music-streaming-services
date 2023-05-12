@@ -7,7 +7,7 @@ const { getAllPlaylist, createPlaylist, getById, updatePlaylist, deletePlaylist,
 router
     .get("/all", getAllPlaylist)
     .get("/id/:id", getById)
-    .get("/title", getByTitle)
+    .get("/title/:title", getByTitle)
     .get("/owner/:idOwner", getByOwner)
     .post("/create", createPlaylist)
     .patch("/update/id", updatePlaylist)
