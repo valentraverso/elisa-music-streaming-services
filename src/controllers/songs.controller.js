@@ -129,7 +129,7 @@ const songController = {
                 msg: "You need to add a song file",
             })
         }
-        
+
         try {
             const data = await switchUploadSong(body, songFile)
 
@@ -140,6 +140,16 @@ const songController = {
                 );
             
                 console.log("song", song)
+            
+            const songsId = song.map( async song => {
+                const updatedAlbum = await albumModel.findByIdAndUpdate(
+                    { _id: song.album },
+                    { "$push": {"songs": song} },
+                    { new: true }
+                )
+            })
+
+            console.log("songsId", songsId)
 
             // await albumModel.findByIdAndUpdate(
             //     { _id: body.album },
