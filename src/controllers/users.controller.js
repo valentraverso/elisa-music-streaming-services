@@ -36,7 +36,7 @@ const userController = {
         }
     },
     getBySub: async (req, res) => {
-        const { auth: { payload: { sub } } } = req;
+        const { sub } = req.auth.payload;
 
         try {
             const user = await UserModel

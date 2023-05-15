@@ -1,5 +1,5 @@
-const { Types, default: mongoose } = require("mongoose");
-const { playlistModel, songModel, UserModel } = require("../models");
+const { mongoose } = require("mongoose");
+const { playlistModel, UserModel } = require("../models");
 
 const playlistController = {
     getAllPlaylist: async (req, res) => {
@@ -64,6 +64,7 @@ const playlistController = {
         try {
             const playlist = await playlistModel
                 .findById(id)
+                .populate("songs")
                 .lean()
                 .exec();
 
@@ -147,8 +148,9 @@ const playlistController = {
             })
         }
     },
-    createLikePlaylist: async (req, res) => {
+    createLikeSongs: async (req, res) => {
         const { userId } = res.locals;
+        const { sub } = req.auth.payload;
 
         try {
             const playlist = await playlistModel.create({
@@ -170,6 +172,16 @@ const playlistController = {
                 return;
             }
 
+            const user = await UserModel
+                .findOneAndUpdate({
+                    sub: sub
+                },
+                    {
+                        "$push": { playlists: playlist._id },
+                        likePlaylist: playlist._id
+                    })
+                .exec();
+
             res.status(201).send({
                 status: true,
                 msg: "We create a new playlist",
@@ -184,6 +196,7 @@ const playlistController = {
     },
     updateLikeSong: async (req, res) => {
         const { id } = req.params;
+        const { likePlaylist } = req.body;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
             res.status(409).send({
@@ -193,13 +206,13 @@ const playlistController = {
             return;
         }
 
-        console.log(id)
+        console.log(likePlaylist)
 
         try {
-            const song = await songModel
+            const playlist = await playlistModel
                 .findOneAndUpdate(
                     {
-                        _id: id,
+                        _id: likePlaylist,
                     },
                     {
                         "$push": { songs: id }
@@ -208,18 +221,19 @@ const playlistController = {
                         new: true
                     }
                 )
-                .lean()
                 .exec();
 
-            req.status(200).send({
+            console.log(playlist)
+
+            res.status(200).send({
                 status: true,
                 msg: "Song liked",
-                song: song
+                playlist: playlist
             })
         } catch (err) {
             res.status(503).send({
                 status: false,
-                msg: err,
+                msg: err.message,
             })
         }
     },

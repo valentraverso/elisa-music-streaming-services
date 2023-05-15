@@ -1,6 +1,8 @@
-import { UserModel } from "../models";
+const { Types} = require("mongoose");
+const { UserModel } = require("../models");
 
-export async function verifyRequester(req, res, next) {
+
+async function verifyRequester(req, res, next) {
     const { userId } = req.body;
     const { sub } = req.auth.payload;
 
@@ -12,18 +14,22 @@ export async function verifyRequester(req, res, next) {
             .lean()
             .exec();
 
-        if (!userId.equals(user._id)) {
+        if (!user || !new Types.ObjectId(userId).equals(user._id)) {
             res.status(400).send({
                 status: false,
                 msg: "You can't make this action."
             })
 
-            next();
+            return;
         }
+
+        next();
     } catch (err) {
         res.status(503).send({
             status: false,
-            msg: err,
+            msg: err.message,
         })
     }
 }
+
+module.exports = { verifyRequester };
