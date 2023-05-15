@@ -10,12 +10,17 @@ const UserSchema = new Schema({
         required: [true, 'The email is requerid'],
         unique: true
     },
+    username :{
+        type: String,
+        required: true
+    },
     picture:{
         type: String
     },
     sub:{
         required: [true],
-        type: String
+        type: String,
+        unique: true
     },
     follows:[{
         type: String,

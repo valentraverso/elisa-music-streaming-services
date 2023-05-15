@@ -1,8 +1,5 @@
 const mongoose = require("mongoose");
 const { songModel, albumModel } = require("../models");
-const fs = require("fs-extra");
-const uploadMultipleSongs = require("../utils/upload_multiple_songs");
-const {uploadSong} = require("../utils/cloudinary");
 const switchUploadSong = require("../utils/switch_upload_song");
 
 const songController = {
@@ -134,14 +131,11 @@ const songController = {
         try {
             const data = await switchUploadSong(body, songFile)
 
-            // console.log("EntryTry", data)
             const song = await songModel
                 .insertMany(
                     data
                 );
-            
-                console.log("song", song)
-            
+                        
             const songsId = song.map( async song => {
                 const updatedAlbum = await albumModel.findByIdAndUpdate(
                     { _id: song.album },
@@ -149,8 +143,6 @@ const songController = {
                     { new: true }
                 )
             })
-
-            console.log("songsId", songsId)
 
             // await albumModel.findByIdAndUpdate(
             //     { _id: body.album },
