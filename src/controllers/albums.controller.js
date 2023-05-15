@@ -202,6 +202,39 @@ const albumController = {
             })
         }
     },
+    deleteManyAlbums: async (req, res) => {
+        try {
+            const {title} = req.params
+            const titleRegex = new RegExp(`${title}`)
+            const albumToDelete = await albumModel.find()
+            const deletedAlbum = await albumModel.deleteMany(
+            
+            )
+            if (!deletedAlbum) {
+                return res.status(404).send({
+                    status: false,
+                    msg: `album ${albumId} not found`
+                });
+            }
+            // console.log(albumToDelete)
+            // const {...albums} = {albumToDelete}
+            albumToDelete.map(async album => {
+                console.log(album._id)
+            })
+            
+            await songModel.deleteMany();
+
+            res.status(200).send({
+                status: true,
+                msg: "Album and related songs deleted",
+            })
+        } catch (error) {
+            res.status(500).send({
+                status: false,
+                msg: error,
+            })
+        }
+    }
 }
 
 
