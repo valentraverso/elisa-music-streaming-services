@@ -30,13 +30,20 @@ const playlistController = {
     getByOwner: async (req, res) => {
         const { params: { idOwner } } = req;
 
+        console.log(idOwner)
+
         try {
-            const playlist = await song
+            const playlist = await playlistModel
                 .find({ owner: idOwner })
+                .sort({ _id: -1 })
                 .lean()
                 .exec();
 
-            console.log(playlist)
+            res.status(200).send({
+                status: true,
+                msg: "We found playlist.",
+                data: playlist
+            });
         } catch (err) {
             res.status(503).send({
                 status: false,
@@ -48,16 +55,48 @@ const playlistController = {
         const { body } = req
         try {
             const newPlaylist = await playlistModel.create({
-                title: body.title,
-                owner: body.owner,
-                songs: body.songs,
-                img: body.img
+                ...body
             });
 
             res.status(201).send({
                 status: true,
                 msg: "We create a new playlist",
                 data: newPlaylist,
+            })
+        } catch (error) {
+            res.status(500).send({
+                status: false,
+                msg: error,
+            })
+        }
+    },
+    createLikePlaylist: async (req, res) => {
+        const { userId } = res.locals;
+
+        try {
+            const playlist = await playlistModel.create({
+                title: "Likes",
+                owner: userId,
+                likePlaylist: true,
+                private: true,
+                img: {
+                    public_id: 'Home/playlists/liked.png',
+                    secure_url: 'https://res.cloudinary.com/dppekhvoo/image/upload/v1683710140/Home/playlists/liked.png'
+                }
+            });
+
+            if(!playlist){                
+                res.status(404).send({
+                    status: false,
+                    msg: "We coundn't create the like playlist",
+                })
+                return;
+            }
+
+            res.status(201).send({
+                status: true,
+                msg: "We create a new playlist",
+                data: playlist,
             })
         } catch (error) {
             res.status(500).send({

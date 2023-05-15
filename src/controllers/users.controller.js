@@ -1,24 +1,35 @@
 const { UserModel } = require("../models")
 
 const userController = {
-    signUp: async (req, res) => {
+    postUser: async (req, res, next) => {
         const { name, email, picture, sub, role } = req.body
+
+        console.log("creando usuario")
         try {
-            const user = await UserModel.create({ name, email, picture, sub, role });
+            const user = await UserModel
+                .create(
+                    {
+                        name,
+                        email,
+                        picture,
+                        sub,
+                        role
+                    }
+                );
 
             if (!user) {
                 res.status(404).send({
                     status: false,
                     msg: "We coundn't create your user",
                 })
+                return;
             }
 
-            res.status(200).send({
-                status: true,
-                msg: "User was created successfully",
-                data: user
-            })
+            res.locals.userId = user._id;
+
+            next();
         } catch (error) {
+            console.log(error.message);
             res.status(500).send({
                 status: false,
                 msg: error
