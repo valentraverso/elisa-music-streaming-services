@@ -135,11 +135,11 @@ const songController = {
                 .insertMany(
                     data
                 );
-                        
-            const songsId = song.map( async song => {
+
+            const songsId = song.map(async song => {
                 const updatedAlbum = await albumModel.findByIdAndUpdate(
                     { _id: song.album },
-                    { "$push": {"songs": song} },
+                    { "$push": { "songs": song } },
                     { new: true }
                 )
             })

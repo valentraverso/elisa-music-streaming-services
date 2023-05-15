@@ -1,5 +1,5 @@
-const { Types, default: mongoose } = require("mongoose");
-const { playlistModel, songModel, UserModel } = require("../models");
+const { mongoose } = require("mongoose");
+const { playlistModel, UserModel } = require("../models");
 
 const playlistController = {
     getAllPlaylist: async (req, res) => {
@@ -64,6 +64,13 @@ const playlistController = {
         try {
             const playlist = await playlistModel
                 .findById(id)
+                .populate("songs")
+                .populate({
+                    path: 'songs',
+                    populate: {
+                        path: 'album'
+                    }
+                })
                 .lean()
                 .exec();
 
@@ -137,7 +144,7 @@ const playlistController = {
             });
         }
     },
-    createPlaylist: async (req, res) => {
+    postPlaylist: async (req, res) => {
         const { body } = req
         try {
             const newPlaylist = await playlistModel.create({
@@ -156,8 +163,9 @@ const playlistController = {
             })
         }
     },
-    createLikePlaylist: async (req, res) => {
+    createLikeSongs: async (req, res) => {
         const { userId } = res.locals;
+        const { sub } = req.auth.payload;
 
         try {
             const playlist = await playlistModel.create({
@@ -179,6 +187,16 @@ const playlistController = {
                 return;
             }
 
+            const user = await UserModel
+                .findOneAndUpdate({
+                    sub: sub
+                },
+                    {
+                        "$push": { playlists: playlist._id },
+                        likePlaylist: playlist._id
+                    })
+                .exec();
+
             res.status(201).send({
                 status: true,
                 msg: "We create a new playlist",
@@ -188,6 +206,49 @@ const playlistController = {
             res.status(500).send({
                 status: false,
                 msg: error,
+            })
+        }
+    },
+    updateLikeSong: async (req, res) => {
+        const { id } = req.params;
+        const { likePlaylist } = req.body;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            res.status(409).send({
+                status: false,
+                msg: "Invalid ID"
+            })
+            return;
+        }
+
+        console.log(likePlaylist)
+
+        try {
+            const playlist = await playlistModel
+                .findOneAndUpdate(
+                    {
+                        _id: likePlaylist,
+                    },
+                    {
+                        "$push": { songs: id }
+                    },
+                    {
+                        new: true
+                    }
+                )
+                .exec();
+
+            console.log(playlist)
+
+            res.status(200).send({
+                status: true,
+                msg: "Song liked",
+                playlist: playlist
+            })
+        } catch (err) {
+            res.status(503).send({
+                status: false,
+                msg: err.message,
             })
         }
     },
