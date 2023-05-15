@@ -41,5 +41,3 @@ app.use("/users", userRouter)
 app.use("/mixes", mixesRouter)
 app.use("/genres", genreRouter)
 app.use("/playlists", playlistsRouter)
-
-console.log("Nuevo Usuario")

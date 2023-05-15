@@ -57,13 +57,15 @@ const albumController = {
     getManyById: async (req, res) => {
         const { params: {ids} } = req;
 
+        const arrayId = ids.split(",");
+
+        console.log(arrayId);
+
         try {
             const album = await albumModel
                 .find({
                     _id: {
-                        $in: [
-                            ids
-                        ]
+                        $in: arrayId
                     }
                 })
                 .sort({
@@ -72,7 +74,7 @@ const albumController = {
                 .lean()
                 .exec();
 
-                console.log("albums", album)
+                console.log(album)
 
                 if(album.length < 1){
                     res.status(404).send({

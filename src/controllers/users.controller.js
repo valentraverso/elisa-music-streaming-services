@@ -4,7 +4,6 @@ const userController = {
     postUser: async (req, res, next) => {
         const { name, email, picture, sub, role, username } = req.body
 
-        console.log("creando usuario")
         try {
             const user = await UserModel
                 .create(
@@ -30,7 +29,6 @@ const userController = {
 
             next();
         } catch (error) {
-            console.log(error.message);
             res.status(500).send({
                 status: false,
                 msg: error
