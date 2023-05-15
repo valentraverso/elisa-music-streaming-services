@@ -1,4 +1,5 @@
-const { playlistModel, songModel } = require("../models");
+const { Types, default: mongoose } = require("mongoose");
+const { playlistModel, songModel, UserModel } = require("../models");
 
 const playlistController = {
     getAllPlaylist: async (req, res) => {
@@ -16,7 +17,6 @@ const playlistController = {
                     msg: "We couldn't find playlists",
                 })
             }
-            console.log(playlists)
             res.status(200).send(
                 playlists
             )
@@ -29,8 +29,6 @@ const playlistController = {
     },
     getByOwner: async (req, res) => {
         const { params: { idOwner } } = req;
-
-        console.log(idOwner)
 
         try {
             const playlist = await playlistModel
@@ -49,6 +47,85 @@ const playlistController = {
                 status: false,
                 msg: err
             })
+        }
+    },
+    getById: async (req, res) => {
+        const { id } = req.params;
+        const { sub } = req.auth.payload;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            res.status(409).send({
+                status: false,
+                msg: "Invalid ID"
+            })
+            return;
+        }
+
+        try {
+            const playlist = await playlistModel
+                .findById(id)
+                .lean()
+                .exec();
+
+            if (!playlist) {
+                return res.status(404).send({
+                    status: false,
+                    msg: `Playlist ${id} not found`
+                })
+            }
+
+            if (playlist.private) {
+                const user = await UserModel
+                    .findOne({ sub: sub })
+                    .lean()
+                    .exec();
+
+                if (playlist.owner.equals(user._id)) {
+                    return res.status(200).send({
+                        status: true,
+                        msg: "Playlist found it",
+                        data: playlist
+                    })
+                }
+
+                return res.status(404).send({
+                    status: false,
+                    msg: `Playlist ${id} not found`
+                })
+            }
+
+            res.status(200).send({
+                status: true,
+                msg: "Playlist found it",
+                data: playlist
+            })
+        } catch (error) {
+            res.status(500).send({
+                status: false,
+                msg: error,
+            })
+        }
+    },
+    getByTitle: async (req, res) => {
+        try {
+            const playlistTitle = req.params.title;
+            const playlist = await playlistModel.findOne({ title: playlistTitle });
+            if (!playlist) {
+                return res.status(404).send({
+                    status: false,
+                    msg: `Playlist ${playlistTitle} not found`
+                });
+            }
+            res.status(200).send({
+                status: true,
+                msg: "Playlist found",
+                data: playlist
+            });
+        } catch (error) {
+            res.status(500).send({
+                status: false,
+                msg: error
+            });
         }
     },
     createPlaylist: async (req, res) => {
@@ -85,7 +162,7 @@ const playlistController = {
                 }
             });
 
-            if(!playlist){                
+            if (!playlist) {
                 res.status(404).send({
                     status: false,
                     msg: "We coundn't create the like playlist",
@@ -105,28 +182,6 @@ const playlistController = {
             })
         }
     },
-    getByTitle: async (req, res) => {
-        try {
-            const playlistTitle = req.params.title;
-            const playlist = await playlistModel.findOne({ title: playlistTitle });
-            if (!playlist) {
-                return res.status(404).send({
-                    status: false,
-                    msg: `Playlist ${playlistTitle} not found`
-                });
-            }
-            res.status(200).send({
-                status: true,
-                msg: "Playlist found",
-                data: playlist
-            });
-        } catch (error) {
-            res.status(500).send({
-                status: false,
-                msg: error
-            });
-        }
-    },
     updatePlaylist: async (req, res) => {
         try {
             const playlistId = req.params.id
@@ -139,31 +194,6 @@ const playlistController = {
                 status: true,
                 msg: "Playlist updated",
                 data: updatedPlaylist,
-            })
-        } catch (error) {
-            res.status(500).send({
-                status: false,
-                msg: error,
-            })
-        }
-    },
-    getById: async (req, res) => {
-        try {
-            const playlistId = req.params.id
-            const playlist = await playlistModel
-                .findById({ playlistId })
-
-            if (!playlist) {
-                return res.status(404).send({
-                    status: false,
-                    msg: `Playlist ${playlistId} not found`
-                }
-                )
-            }
-            res.status(200).send({
-                status: true,
-                msg: "Playlist found it",
-                data: playlist
             })
         } catch (error) {
             res.status(500).send({
@@ -198,7 +228,7 @@ const playlistController = {
                 msg: error,
             })
         }
-    },
+    }
 }
 
 module.exports = { playlistController };
