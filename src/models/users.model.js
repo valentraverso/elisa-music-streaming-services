@@ -15,7 +15,8 @@ const UserSchema = new Schema({
     },
     sub:{
         required: [true],
-        type: String
+        type: String,
+        unique: true
     },
     follows:[{
         type: String,
