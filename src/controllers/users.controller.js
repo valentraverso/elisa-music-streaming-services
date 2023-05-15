@@ -39,7 +39,7 @@ const userController = {
 
         try {
             const user = await UserModel
-                .find({ sub: sub })
+                .findOne({ sub: sub })
                 .lean()
                 .exec();
 

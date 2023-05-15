@@ -128,7 +128,7 @@ const playlistController = {
             });
         }
     },
-    createPlaylist: async (req, res) => {
+    postPlaylist: async (req, res) => {
         const { body } = req
         try {
             const newPlaylist = await playlistModel.create({
@@ -179,6 +179,47 @@ const playlistController = {
             res.status(500).send({
                 status: false,
                 msg: error,
+            })
+        }
+    },
+    updateLikeSong: async (req, res) => {
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            res.status(409).send({
+                status: false,
+                msg: "Invalid ID"
+            })
+            return;
+        }
+
+        console.log(id)
+
+        try {
+            const song = await songModel
+                .findOneAndUpdate(
+                    {
+                        _id: id,
+                    },
+                    {
+                        "$push": { songs: id }
+                    },
+                    {
+                        new: true
+                    }
+                )
+                .lean()
+                .exec();
+
+            req.status(200).send({
+                status: true,
+                msg: "Song liked",
+                song: song
+            })
+        } catch (err) {
+            res.status(503).send({
+                status: false,
+                msg: err,
             })
         }
     },
