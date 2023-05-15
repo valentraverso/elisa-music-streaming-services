@@ -74,10 +74,11 @@ const playlistController = {
                     "title": {
                         "$regex": playlistTitle,
                         "$options": "i"
-                    }
+                    },
+                    private: false
                 });
 
-            if (!playlist) {
+            if (playlist.length <= 0) {
                 return res.status(404).send({
                     status: false,
                     msg: `Playlist with title "${playlistTitle}" not found`,
@@ -96,6 +97,7 @@ const playlistController = {
             });
         }
     },
+
     updatePlaylist: async (req, res) => {
         try {
             const playlistId = req.params.id

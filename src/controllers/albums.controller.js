@@ -7,10 +7,10 @@ const albumController = {
     getAllAlbum: async (req, res) => {
         try {
             const albums = await albumModel
-            .find({})
-            .sort({_id: -1})
-            .populate("songs")
-            .limit(6);
+                .find({})
+                .sort({ _id: -1 })
+                .populate("songs")
+                .limit(6);
 
             if (!albums) {
                 res.status(404).send({
@@ -61,7 +61,7 @@ const albumController = {
     updateAlbum: async (req, res) => {
         try {
             const albumId = req.params.id
-            
+
             const updatedAlbum = await albumModel.findByIdAndUpdate(
                 albumId,
                 req.body,
@@ -83,10 +83,10 @@ const albumController = {
         try {
             const albumId = req.params.id
             const album = await albumModel
-            .findById(albumId)
-            .populate("songs")
-            .lean()
-            .exec();
+                .findById(albumId)
+                .populate("songs")
+                .lean()
+                .exec();
 
             if (!album) {
                 return res.status(404).send({
@@ -110,18 +110,18 @@ const albumController = {
         try {
             const albumTitle = req.params.title;
             const album = await albumModel
-            .find({
-                "title": {
-                    "$regex": albumTitle,
-                    "$options": "i"
-                }
-            })
+                .find({
+                    "title": {
+                        "$regex": albumTitle,
+                        "$options": "i"
+                    }
+                })
                 .populate({
                     path: "songs",
                     populate: "album"
                 });
 
-            if (!album) {
+            if (album.length <= 0) {
                 return res.status(404).send({
                     status: false,
                     msg: `Album with title "${albumTitle}" not found`,
@@ -140,6 +140,7 @@ const albumController = {
             });
         }
     },
+
     deleteAlbum: async (req, res) => {
         try {
             const albumId = req.params.id
