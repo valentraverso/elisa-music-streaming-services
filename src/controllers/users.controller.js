@@ -2,7 +2,7 @@ const { UserModel } = require("../models")
 
 const userController = {
     postUser: async (req, res, next) => {
-        const { name, email, picture, sub, role } = req.body
+        const { name, email, picture, sub, role, username } = req.body
 
         console.log("creando usuario")
         try {
@@ -13,7 +13,8 @@ const userController = {
                         email,
                         picture,
                         sub,
-                        role
+                        role,
+                        username
                     }
                 );
 
@@ -74,6 +75,7 @@ const userController = {
                     status: false,
                     msg: "We coundn't find your user",
                 })
+                return
             }
 
             res.status(200).send({
