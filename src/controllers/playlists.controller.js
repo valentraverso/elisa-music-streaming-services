@@ -65,6 +65,12 @@ const playlistController = {
             const playlist = await playlistModel
                 .findById(id)
                 .populate("songs")
+                .populate({
+                    path: 'songs',
+                    populate: {
+                        path: 'album'
+                    }
+                })
                 .lean()
                 .exec();
 
