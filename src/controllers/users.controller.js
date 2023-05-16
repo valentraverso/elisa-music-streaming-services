@@ -161,7 +161,16 @@ const userController = {
     getByName: async (req, res) => {
         const { userName } = req.params;
         try {
-            const user = await UserModel.find({ name: userName });
+            const user = await UserModel
+            .find({
+                "name": {
+                    "$regex": userName,
+                    "$options": "i"
+                }
+            })
+            .lean()
+            .exec();
+            
             if (user.length <= 0) {
                 res.status(404).send({
                     status: false,
