@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { userController } = require("../controllers");
 const { playlistController } = require("../controllers");
+const { verifyRequester } = require("../middlewares/verifyRequester");
 
 const { postUser, getBySub, getById, updateArray, updateBasic, deleteUser, getByName, getByUsername, updateFollows } = userController;
 const { createLikeSongs } = playlistController;

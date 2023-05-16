@@ -162,8 +162,13 @@ const userController = {
         console.log(body.idVisiting)
         try {
             const user = await UserModel.findOneAndUpdate(
-                { _id: body.idUser },
+                { _id: body.userId },
                 { "$addToSet": {follows: body.idVisiting} },
+                { new: true }
+            );
+            const userVisiting = await UserModel.findOneAndUpdate(
+                { _id:  body.idVisiting},
+                { "$addToSet": {followers: body.userId} },
                 { new: true }
             );
             res.status(200).send({
