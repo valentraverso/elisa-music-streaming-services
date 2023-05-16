@@ -247,24 +247,42 @@ const playlistController = {
     },
     updatePlaylist: async (req, res) => {
         try {
-            const playlistId = req.params.id
-            const updatedPlaylist = await playlistModel.findByIdAndUpdate(
-                playlistId,
-                req.body,
-                { new: true },
-            )
-            res.status(201).send({
-                status: true,
-                msg: "Playlist updated",
-                data: updatedPlaylist,
-            })
-        } catch (error) {
-            res.status(500).send({
+            const playlistId = req.params.id;
+            const newSongs = req.body.songs;
+          
+            if (!newSongs || newSongs.length === 0) {
+              return res.status(400).send({
                 status: false,
-                msg: error,
-            })
-        }
-    },
+                msg: "Songs array is required and must not be empty",
+              });
+            }
+          
+            const playlist = await playlistModel.findByIdAndUpdate(
+              playlistId,
+              { $push: { songs: { $each: newSongs } } },
+              { new: true }
+            );
+          
+            if (!playlist) {
+              return res.status(404).send({
+                status: false,
+                msg: "Playlist not found",
+              });
+            }
+          
+            res.status(201).send({
+              status: true,
+              msg: "Playlist updated",
+              data: playlist,
+            });
+          } catch (error) {
+            console.error(error);
+            res.status(500).send({
+              status: false,
+              msg: "An error occurred while updating the playlist",
+            });
+          }
+      },
     deletePlaylist: async (req, res) => {
         try {
             const playlistId = req.params.id
