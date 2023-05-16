@@ -63,6 +63,34 @@ const userController = {
             })
         }
     },
+    getByUsername: async (req, res) => {
+        const { username } = req.params;
+
+        try {
+            const user = await UserModel
+                .findOne({ username: username })
+                .lean()
+                .exec();
+
+            if (!user || user.length === 0) {
+                res.status(404).send({
+                    status: false,
+                    msg: "We coundn't find your user",
+                })
+                return;
+            }
+
+            res.status(200).send({
+                status: true,
+                data: user
+            })
+        } catch (error) {
+            res.status(500).send({
+                status: false,
+                msg: error
+            })
+        }
+    },
     getById: async (req, res) => {
         const { userId } = req.params;
         try {
@@ -121,6 +149,27 @@ const userController = {
                 status: true,
                 msg: `Sucessfully updated`,
                 data: updateUser
+            });
+        } catch (error) {
+            res.status(500).send({
+                status: false,
+                msg: error
+            })
+        }
+    },
+    updateFollows: async (req, res) => {
+        const { body } = req;
+        console.log(body.idVisiting)
+        try {
+            const user = await UserModel.findOneAndUpdate(
+                { _id: body.idUser },
+                { "$addToSet": {follows: body.idVisiting} },
+                { new: true }
+            );
+            res.status(200).send({
+                status: true,
+                msg: `Sucessfully updated`,
+                data: user
             });
         } catch (error) {
             res.status(500).send({

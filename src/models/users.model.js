@@ -23,7 +23,7 @@ const UserSchema = new Schema({
         unique: true
     },
     follows:[{
-        type: String,
+        type: Types.ObjectId,
         ref: "follows"
     }],
     followers:[{
