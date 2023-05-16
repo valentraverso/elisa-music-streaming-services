@@ -22,8 +22,8 @@ const UserSchema = new Schema({
         type: String,
         unique: true
     },
-    follows: [{
-        type: String,
+    follows:[{
+        type: Types.ObjectId,
         ref: "follows"
     }],
     followers: [{
