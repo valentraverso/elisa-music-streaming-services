@@ -41,6 +41,7 @@ const userController = {
         try {
             const user = await UserModel
                 .findOne({ sub: sub })
+                .populate("playlists")
                 .lean()
                 .exec();
 
