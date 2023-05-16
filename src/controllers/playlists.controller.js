@@ -17,6 +17,7 @@ const playlistController = {
                     msg: "We couldn't find playlists",
                 })
             }
+            
             res.status(200).send(
                 playlists
             )
@@ -118,22 +119,31 @@ const playlistController = {
     getByTitle: async (req, res) => {
         try {
             const playlistTitle = req.params.title;
-            const playlist = await playlistModel.findOne({ title: playlistTitle });
-            if (!playlist) {
+            const playlist = await playlistModel
+                .find({
+                    "title": {
+                        "$regex": playlistTitle,
+                        "$options": "i"
+                    },
+                    private: false
+                });
+
+            if (playlist.length <= 0) {
                 return res.status(404).send({
                     status: false,
-                    msg: `Playlist ${playlistTitle} not found`
+                    msg: `Playlist with title "${playlistTitle}" not found`,
                 });
             }
+
             res.status(200).send({
                 status: true,
                 msg: "Playlist found",
-                data: playlist
+                data: playlist,
             });
         } catch (error) {
             res.status(500).send({
                 status: false,
-                msg: error
+                msg: error,
             });
         }
     },
@@ -161,7 +171,8 @@ const playlistController = {
         const { sub } = req.auth.payload;
 
         try {
-            const playlist = await playlistModel.create({
+            const playlist = await playlistModel
+            .create({
                 title: "Likes",
                 owner: userId,
                 likePlaylist: true,
@@ -181,13 +192,25 @@ const playlistController = {
             }
 
             const user = await UserModel
-                .findOneAndUpdate({
-                    sub: sub
-                },
+                .findOneAndUpdate(
                     {
-                        "$push": { playlists: playlist._id },
+                        sub: sub
+                    },
+                    {
+                        "$addToSet": { playlists: playlist._id },
                         likePlaylist: playlist._id
-                    })
+                    },
+                    {
+                        new: true
+                    }
+                )
+                .populate("songs")
+                .populate({
+                    path: "songs",
+                    populate: {
+                        path: "albums"
+                    }
+                })
                 .exec();
 
             res.status(201).send({
@@ -214,7 +237,52 @@ const playlistController = {
             return;
         }
 
-        console.log(likePlaylist)
+        try {
+            const playlist = await playlistModel
+                .findOneAndUpdate(
+                    {
+                        _id: likePlaylist,
+                    },
+                    {
+                        "$addToSet": { songs: id }
+                    },
+                    {
+                        new: true
+                    }
+                )
+                .populate("songs")
+                .populate({
+                    path: 'songs',
+                    populate: {
+                        path: 'album'
+                    }
+                })
+                .exec();
+
+
+            res.status(200).send({
+                status: true,
+                msg: "Song liked",
+                data: playlist
+            })
+        } catch (err) {
+            res.status(503).send({
+                status: false,
+                msg: err.message,
+            })
+        }
+    },
+    updateDislikeSongs: async (req, res) => {
+        const { id } = req.params;
+        const { likePlaylist } = req.body;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            res.status(409).send({
+                status: false,
+                msg: "Invalid ID"
+            })
+            return;
+        }
 
         try {
             const playlist = await playlistModel
@@ -223,7 +291,7 @@ const playlistController = {
                         _id: likePlaylist,
                     },
                     {
-                        "$push": { songs: id }
+                        "$pull": { songs: id }
                     },
                     {
                         new: true
@@ -231,12 +299,11 @@ const playlistController = {
                 )
                 .exec();
 
-            console.log(playlist)
 
             res.status(200).send({
                 status: true,
-                msg: "Song liked",
-                playlist: playlist
+                msg: "Song disliked",
+                data: playlist
             })
         } catch (err) {
             res.status(503).send({

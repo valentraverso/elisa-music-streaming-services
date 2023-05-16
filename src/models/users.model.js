@@ -22,8 +22,8 @@ const UserSchema = new Schema({
         type: String,
         unique: true
     },
-    follows: [{
-        type: String,
+    follows:[{
+        type: Types.ObjectId,
         ref: "follows"
     }],
     followers: [{
@@ -35,10 +35,7 @@ const UserSchema = new Schema({
         ref: "playlists"
     }],
     likePlaylist: {
-        type: Types.ObjectId,
-        required: false,
-        unique: true,
-        length: 1
+        type: Types.ObjectId
     },
     albums: [{
         type: Types.ObjectId,

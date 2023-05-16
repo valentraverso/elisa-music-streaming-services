@@ -30,6 +30,7 @@ const userController = {
             next();
         } catch (error) {
             res.status(500).send({
+                path: "user controller",
                 status: false,
                 msg: error
             })
@@ -41,6 +42,41 @@ const userController = {
         try {
             const user = await UserModel
                 .findOne({ sub: sub })
+                .populate("playlists")
+                .populate({
+                    path: "playlists",
+                    populate: {
+                        path: "songs"
+                    }
+                })
+                .lean()
+                .exec();
+
+            if (!user || user.length === 0) {
+                res.status(404).send({
+                    status: false,
+                    msg: "We coundn't find your user",
+                })
+                return;
+            }
+
+            res.status(200).send({
+                status: true,
+                data: user
+            })
+        } catch (error) {
+            res.status(500).send({
+                status: false,
+                msg: error
+            })
+        }
+    },
+    getByUsername: async (req, res) => {
+        const { username } = req.params;
+
+        try {
+            const user = await UserModel
+                .findOne({ username: username })
                 .lean()
                 .exec();
 
@@ -129,6 +165,32 @@ const userController = {
             })
         }
     },
+    updateFollows: async (req, res) => {
+        const { body } = req;
+        console.log(body.idVisiting)
+        try {
+            const user = await UserModel.findOneAndUpdate(
+                { _id: body.userId },
+                { "$addToSet": {follows: body.idVisiting} },
+                { new: true }
+            );
+            const userVisiting = await UserModel.findOneAndUpdate(
+                { _id:  body.idVisiting},
+                { "$addToSet": {followers: body.userId} },
+                { new: true }
+            );
+            res.status(200).send({
+                status: true,
+                msg: `Sucessfully updated`,
+                data: user
+            });
+        } catch (error) {
+            res.status(500).send({
+                status: false,
+                msg: error
+            })
+        }
+    },
     deleteUser: async (req, res) => {
         const { body } = req;
         const { userId } = req.params;
@@ -153,7 +215,16 @@ const userController = {
     getByName: async (req, res) => {
         const { userName } = req.params;
         try {
-            const user = await UserModel.find({ name: userName });
+            const user = await UserModel
+            .find({
+                "name": {
+                    "$regex": userName,
+                    "$options": "i"
+                }
+            })
+            .lean()
+            .exec();
+            
             if (user.length <= 0) {
                 res.status(404).send({
                     status: false,
