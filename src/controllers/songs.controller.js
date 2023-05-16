@@ -49,6 +49,7 @@ const songController = {
                         "$options": "i"
                     }
                 })
+                .populate("album")
 
             if (song.length <= 0) {
                 res.status(404).send({
