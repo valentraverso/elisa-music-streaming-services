@@ -4,7 +4,7 @@ const { userController } = require("../controllers");
 const { playlistController } = require("../controllers");
 
 const { postUser, getBySub, getById, updateArray, updateBasic, deleteUser, getByName, getByUsername, updateFollows } = userController;
-const { createLikePlaylist } = playlistController;
+const { createLikeSongs } = playlistController;
 
 router
     .get("/sub", getBySub)
@@ -15,6 +15,6 @@ router
     .patch("/update/:userId", updateBasic)
     .patch("/delete/:userId", deleteUser)
     .patch("/updatefollows", updateFollows)
-    .post("/create", postUser, createLikePlaylist);
+    .post("/create", postUser, createLikeSongs);
 
 module.exports = router;
