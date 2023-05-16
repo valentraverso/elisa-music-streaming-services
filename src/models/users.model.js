@@ -1,51 +1,62 @@
-const {Schema, model, Types} = require("mongoose")
+const { Schema, model, Types } = require("mongoose")
 
 const UserSchema = new Schema({
-    name:{
+    name: {
         type: String,
         required: [true, 'The name is requerid']
     },
-    email:{
+    email: {
         type: String,
         required: [true, 'The email is requerid'],
         unique: true
     },
-    picture:{
+    username: {
+        type: String,
+        required: true
+    },
+    picture: {
         type: String
     },
-    sub:{
+    sub: {
         required: [true],
-        type: String
+        type: String,
+        unique: true
     },
-    follows:[{
+    follows: [{
         type: String,
         ref: "follows"
     }],
-    followers:[{
+    followers: [{
         type: Types.ObjectId,
         ref: "followers"
     }],
-    playlists:[{
+    playlists: [{
         type: Types.ObjectId,
         ref: "playlists"
     }],
-    albums:[{
+    likePlaylist: {
+        type: Types.ObjectId,
+        required: false,
+        unique: true,
+        length: 1
+    },
+    albums: [{
         type: Types.ObjectId,
         ref: "albums"
     }],
-    genres:[{
+    genres: [{
         type: Types.ObjectId,
         ref: "genres"
     }],
-    artists:[{
+    artists: [{
         type: Types.ObjectId,
         ref: "artists"
     }],
-    role:{
+    role: {
         type: Number,
         default: 1
     },
-    status:{
+    status: {
         type: Number,
         default: 1
     }

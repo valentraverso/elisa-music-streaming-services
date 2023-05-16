@@ -1,23 +1,33 @@
 const { UserModel } = require("../models")
 
 const userController = {
-    signUp: async (req, res) => {
-        const { name, email, picture, sub, role } = req.body
+    postUser: async (req, res, next) => {
+        const { name, email, picture, sub, role, username } = req.body
+
         try {
-            const user = await UserModel.create({ name, email, picture, sub, role });
+            const user = await UserModel
+                .create(
+                    {
+                        name,
+                        email,
+                        picture,
+                        sub,
+                        role,
+                        username
+                    }
+                );
 
             if (!user) {
                 res.status(404).send({
                     status: false,
                     msg: "We coundn't create your user",
                 })
+                return;
             }
 
-            res.status(200).send({
-                status: true,
-                msg: "User was created successfully",
-                data: user
-            })
+            res.locals.userId = user._id;
+
+            next();
         } catch (error) {
             res.status(500).send({
                 status: false,
@@ -26,11 +36,11 @@ const userController = {
         }
     },
     getBySub: async (req, res) => {
-        const { auth: { payload: { sub } } } = req;
+        const { sub } = req.auth.payload;
 
         try {
             const user = await UserModel
-                .find({ sub: sub })
+                .findOne({ sub: sub })
                 .lean()
                 .exec();
 
@@ -63,6 +73,7 @@ const userController = {
                     status: false,
                     msg: "We coundn't find your user",
                 })
+                return
             }
 
             res.status(200).send({
