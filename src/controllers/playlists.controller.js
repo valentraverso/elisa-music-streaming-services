@@ -45,27 +45,25 @@ const playlistController = {
         }
     },
     createPlaylist: async (req, res) => {
-        const { body } = req
         try {
-            const newPlaylist = await playlistModel.create({
-                title: body.title,
-                owner: body.owner,
-                songs: body.songs,
-                img: body.img
-            });
-
-            res.status(201).send({
-                status: true,
-                msg: "We create a new playlist",
-                data: newPlaylist,
-            })
+          const { title } = req.body;
+          const newPlaylist = new playlistModel({ title });
+          await newPlaylist.save();
+      
+          res.status(201).send({
+            status: true,
+            msg: 'Playlist created',
+            data: newPlaylist,
+          });
         } catch (error) {
-            res.status(500).send({
-                status: false,
-                msg: error,
-            })
+          console.error(error);
+          res.status(500).send({
+            status: false,
+            msg: error,
+          });
         }
-    },
+      },
+      
     getByTitle: async (req, res) => {
         try {
             const playlistTitle = req.params.title;
@@ -90,29 +88,47 @@ const playlistController = {
     },
     updatePlaylist: async (req, res) => {
         try {
-            const playlistId = req.params.id
-            const updatedPlaylist = await playlistModel.findByIdAndUpdate(
-                playlistId,
-                req.body,
-                { new: true },
-            )
-            res.status(201).send({
-                status: true,
-                msg: "Playlist updated",
-                data: updatedPlaylist,
-            })
-        } catch (error) {
-            res.status(500).send({
+            const playlistId = req.params.id;
+            const newSongs = req.body.songs;
+          
+            if (!newSongs || newSongs.length === 0) {
+              return res.status(400).send({
                 status: false,
-                msg: error,
-            })
-        }
-    },
+                msg: "Songs array is required and must not be empty",
+              });
+            }
+          
+            const playlist = await playlistModel.findByIdAndUpdate(
+              playlistId,
+              { $push: { songs: { $each: newSongs } } },
+              { new: true }
+            );
+          
+            if (!playlist) {
+              return res.status(404).send({
+                status: false,
+                msg: "Playlist not found",
+              });
+            }
+          
+            res.status(201).send({
+              status: true,
+              msg: "Playlist updated",
+              data: playlist,
+            });
+          } catch (error) {
+            console.error(error);
+            res.status(500).send({
+              status: false,
+              msg: "An error occurred while updating the playlist",
+            });
+          }
+      },
+      
     getById: async (req, res) => {
         try {
             const playlistId = req.params.id
-            const playlist = await playlistModel
-                .findById({ playlistId })
+            const playlist = await playlistModel.findById(playlistId)
 
             if (!playlist) {
                 return res.status(404).send({
