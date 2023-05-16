@@ -35,10 +35,7 @@ const UserSchema = new Schema({
         ref: "playlists"
     }],
     likePlaylist: {
-        type: Types.ObjectId,
-        required: false,
-        unique: true,
-        length: 1
+        type: Types.ObjectId
     },
     albums: [{
         type: Types.ObjectId,
