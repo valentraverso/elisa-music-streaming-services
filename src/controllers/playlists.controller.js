@@ -17,6 +17,7 @@ const playlistController = {
                     msg: "We couldn't find playlists",
                 })
             }
+            
             res.status(200).send(
                 playlists
             )
@@ -159,7 +160,8 @@ const playlistController = {
         const { sub } = req.auth.payload;
 
         try {
-            const playlist = await playlistModel.create({
+            const playlist = await playlistModel
+            .create({
                 title: "Likes",
                 owner: userId,
                 likePlaylist: true,
@@ -193,9 +195,9 @@ const playlistController = {
                 )
                 .populate("songs")
                 .populate({
-                    path: 'songs',
+                    path: "songs",
                     populate: {
-                        path: 'album'
+                        path: "albums"
                     }
                 })
                 .exec();

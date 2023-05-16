@@ -30,6 +30,7 @@ const userController = {
             next();
         } catch (error) {
             res.status(500).send({
+                path: "user controller",
                 status: false,
                 msg: error
             })
