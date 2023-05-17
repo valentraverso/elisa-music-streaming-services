@@ -102,6 +102,10 @@ const userController = {
         try {
             const user = await UserModel
                 .findOne({ username: username })
+                .populate({
+                    path: "playlists",
+                    populate: "songs"
+                })
                 .lean()
                 .exec();
 

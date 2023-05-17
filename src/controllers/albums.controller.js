@@ -1,4 +1,4 @@
-const { albumModel, songModel } = require("../models");
+const { albumModel, songModel, UserModel } = require("../models");
 const fs = require("fs-extra");
 const { uploadAlbum } = require("../utils/cloudinary");
 
@@ -203,6 +203,11 @@ const albumController = {
                 ...body,
                 img: { public_id, secure_url }
             });
+            const addAlbumToUser = await UserModel.findByIdAndUpdate(
+                { _id: body.owner },
+                { "$addToSet": { albums: newAlbum._id} },
+                { new: true }
+            ); 
 
             res.status(201).send({
                 status: true,
