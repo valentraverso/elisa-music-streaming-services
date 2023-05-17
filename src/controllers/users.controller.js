@@ -216,6 +216,66 @@ const userController = {
             })
         }
     },
+    updateFollowsAlbum: async (req, res) => {
+        const { id } = req.params;
+        const { userId } = req.body;
+
+        try {
+            const user = await UserModel
+                .findOneAndUpdate(
+                    {
+                        _id: userId
+                    },
+                    {
+                        "$addToSet": { albums: id }
+                    },
+                    {
+                        new: true
+                    }
+                );
+
+            res.status(200).send({
+                status: true,
+                msg: `Sucessfully followed album`,
+                data: user
+            });
+        } catch (err) {
+            res.status(500).send({
+                status: false,
+                msg: err.message,
+            })
+        }
+    },
+    updateUnfollowsAlbum: async (req, res) => {
+        const { id } = req.params;
+        const { userId } = req.body;
+
+        try {
+            const user = await UserModel
+                .findOneAndUpdate(
+                    {
+                        _id: userId
+                    },
+                    {
+                        "$pull": { albums: id }
+                    },
+                    {
+                        new: true
+                    }
+                );
+
+            res.status(200).send({
+                status: true,
+                msg: `Sucessfully unfollowed album`,
+                data: user
+            });
+        } catch (err) {
+            res.status(500).send({
+                status: false,
+                msg: err.message,
+            })
+        }
+    },
     deleteUser: async (req, res) => {
         const { body } = req;
         const { userId } = req.params;
