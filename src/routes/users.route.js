@@ -4,7 +4,7 @@ const { userController } = require("../controllers");
 const { playlistController } = require("../controllers");
 const { verifyRequester } = require("../middlewares/verifyRequester");
 
-const { postUser, getBySub, getById, updateArray, updateBasic, deleteUser, getByName, getByUsername, updateFollows, updateUnFollows } = userController;
+const { postUser, getBySub, getById, updateArray, updateBasic, deleteUser, getByName, getByUsername, updateFollows, updateFollowsTypes, updateUnfollowsTypes, updateUnFollows } = userController;
 const { createLikeSongs } = playlistController;
 
 router
@@ -16,6 +16,8 @@ router
     .patch("/update/:userId", updateBasic)
     .patch("/delete/:userId", deleteUser)
     .patch("/updatefollows", updateFollows)
+    .patch("/update/:type/follow/:id", verifyRequester, updateFollowsTypes)
+    .patch("/update/:type/unfollow/:id", verifyRequester, updateUnfollowsTypes)
     .patch("/updateunfollows", updateUnFollows)
     .post("/create", postUser, createLikeSongs);
 
