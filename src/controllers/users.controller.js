@@ -191,6 +191,32 @@ const userController = {
             })
         }
     },
+    updateUnFollows: async (req, res) => {
+        const { body } = req;
+        console.log(body.idVisiting)
+        try {
+            const user = await UserModel.findOneAndUpdate(
+                { _id: body.userId },
+                { "$pull": {follows: body.idVisiting} },
+                { new: true }
+            );
+            const userVisiting = await UserModel.findOneAndUpdate(
+                { _id:  body.idVisiting},
+                { "$pull": {followers: body.userId} },
+                { new: true }
+            );
+            res.status(200).send({
+                status: true,
+                msg: `Sucessfully updated`,
+                data: user
+            });
+        } catch (error) {
+            res.status(500).send({
+                status: false,
+                msg: error
+            })
+        }
+    },
     deleteUser: async (req, res) => {
         const { body } = req;
         const { userId } = req.params;
