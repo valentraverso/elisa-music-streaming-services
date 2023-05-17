@@ -20,11 +20,13 @@ const playlistSchema = new Schema({
     img: {
         public_id: {
             type: String,
-            required: true
+            required: false,
+            default: "/Home/playlist-default"
         },
         secure_url: {
             type: String,
-            required: true
+            required: false,
+            default: "https://res.cloudinary.com/dppekhvoo/image/upload/v1684312937/Home/playlists/playlist-default.jpg"
         }
     },
     likePlaylist: {
