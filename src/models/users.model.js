@@ -16,8 +16,15 @@ const UserSchema = new Schema({
         unique: true,
         maxLength: 20
     },
-    picture: {
-        type: String
+    img: {
+        public_id:{
+            type: String,
+            default: ""
+        },
+        secure_url:{
+            type: String,
+            required: true
+        }
     },
     sub: {
         required: [true],
