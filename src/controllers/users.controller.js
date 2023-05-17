@@ -192,7 +192,6 @@ const userController = {
     },
     updateFollows: async (req, res) => {
         const { body } = req;
-        console.log(body.idVisiting)
         try {
             const user = await UserModel.findOneAndUpdate(
                 { _id: body.userId },
@@ -204,6 +203,33 @@ const userController = {
                 { "$addToSet": { followers: body.userId } },
                 { new: true }
             );
+            res.status(200).send({
+                status: true,
+                msg: `Sucessfully updated`,
+                data: user
+            });
+        } catch (error) {
+            res.status(500).send({
+                status: false,
+                msg: error
+            })
+        }
+    },
+    updateUnFollows: async (req, res) => {
+        const { body } = req;
+        console.log(body.idVisiting)
+        try {
+            const user = await UserModel.findOneAndUpdate(
+                { _id: body.userId },
+                { "$pull": {follows: body.idVisiting} },
+                { new: true }
+            );
+            const userVisiting = await UserModel.findOneAndUpdate(
+                { _id:  body.idVisiting},
+                { "$pull": {followers: body.userId} },
+                { new: true }
+            );
+            console.log(user)
             res.status(200).send({
                 status: true,
                 msg: `Sucessfully updated`,
