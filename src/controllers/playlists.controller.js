@@ -326,26 +326,45 @@ const playlistController = {
             })
         }
     },
-    updatePlaylist: async (req, res) => {
-        try {
-            const playlistId = req.params.id
-            const updatedPlaylist = await playlistModel.findByIdAndUpdate(
-                playlistId,
-                req.body,
-                { new: true },
-            )
-            res.status(201).send({
-                status: true,
-                msg: "Playlist updated",
-                data: updatedPlaylist,
-            })
-        } catch (error) {
-            res.status(500).send({
+  updatePlaylist: async (req, res) => {
+    try {
+        const playlistId = req.params.id;
+        const songId = req.body.songId;
+
+        const playlist = await playlistModel.findById(playlistId);
+
+        if (!playlist) {
+            return res.status(404).send({
                 status: false,
-                msg: error,
-            })
+                msg: "Playlist not found",
+            });
         }
-    },
+
+        // Check if the song already exists in the playlist
+        const existingSongIndex = playlist.songs.findIndex((song) => song === songId);
+        if (existingSongIndex !== -1) {
+            return res.status(400).send({
+                status: false,
+                msg: "Song already exists in the playlist",
+            });
+        }
+
+        // Add the song to the playlist
+        playlist.songs.push(songId);
+        const updatedPlaylist = await playlist.save();
+
+        res.status(201).send({
+            status: true,
+            msg: "Playlist updated",
+            data: updatedPlaylist,
+        });
+    } catch (error) {
+        res.status(500).send({
+            status: false,
+            msg: error,
+        });
+    }
+},
     deletePlaylist: async (req, res) => {
         try {
             const playlistId = req.params.id
