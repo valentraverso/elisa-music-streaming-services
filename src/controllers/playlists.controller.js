@@ -17,7 +17,7 @@ const playlistController = {
                     msg: "We couldn't find playlists",
                 })
             }
-            
+
             res.status(200).send(
                 playlists
             )
@@ -148,14 +148,30 @@ const playlistController = {
     postPlaylist: async (req, res) => {
         const { body } = req
         try {
-            const newPlaylist = await playlistModel.create({
-                ...body
-            });
+            const playlist = await playlistModel
+                .create({
+                    ...body
+                })
+                ;
+
+            const user = await UserModel
+                .findOneAndUpdate(
+                    {
+                        _id: playlist.owner
+                    },
+                    {
+                        "$addToSet": {playlists: playlist._id}
+                    },
+                    {
+                        new:true
+                    }
+                );
+
 
             res.status(201).send({
                 status: true,
                 msg: "We create a new playlist",
-                data: newPlaylist,
+                data: playlist,
             })
         } catch (error) {
             res.status(500).send({
@@ -170,16 +186,16 @@ const playlistController = {
 
         try {
             const playlist = await playlistModel
-            .create({
-                title: "Likes",
-                owner: userId,
-                likePlaylist: true,
-                private: true,
-                img: {
-                    public_id: 'Home/playlists/liked.png',
-                    secure_url: 'https://res.cloudinary.com/dppekhvoo/image/upload/v1683710140/Home/playlists/liked.png'
-                }
-            });
+                .create({
+                    title: "Likes",
+                    owner: userId,
+                    likePlaylist: true,
+                    private: true,
+                    img: {
+                        public_id: 'Home/playlists/liked.png',
+                        secure_url: 'https://res.cloudinary.com/dppekhvoo/image/upload/v1683710140/Home/playlists/liked.png'
+                    }
+                });
 
             if (!playlist) {
                 res.status(404).send({
@@ -202,11 +218,11 @@ const playlistController = {
                         new: true
                     }
                 )
-                .populate("songs")
+                .populate("playlists")
                 .populate({
-                    path: "songs",
+                    path: "playlists",
                     populate: {
-                        path: "albums"
+                        path: "songs"
                     }
                 })
                 .exec();
