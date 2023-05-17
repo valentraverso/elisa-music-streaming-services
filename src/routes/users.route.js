@@ -16,6 +16,6 @@ router
     .patch("/update/:userId", updateBasic)
     .patch("/delete/:userId", deleteUser)
     .patch("/updatefollows", updateFollows)
-    .post("/create", postUser, createLikeSongs);
+    .post("/create", postUser, createLikeSongs)
 
 module.exports = router;

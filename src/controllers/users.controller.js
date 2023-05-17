@@ -2,7 +2,7 @@ const { UserModel } = require("../models")
 
 const userController = {
     postUser: async (req, res, next) => {
-        const { name, email, picture, sub, role, username } = req.body
+        const { name, email, img, sub, role, username } = req.body
 
         try {
             const user = await UserModel
@@ -10,7 +10,9 @@ const userController = {
                     {
                         name,
                         email,
-                        picture,
+                        img:{
+                            secure_url: img
+                        },
                         sub,
                         role,
                         username
@@ -36,6 +38,7 @@ const userController = {
             })
         }
     },
+
     getBySub: async (req, res) => {
         const { sub } = req.auth.payload;
 
@@ -147,36 +150,47 @@ const userController = {
     updateBasic: async (req, res) => {
         const { body } = req;
         const { userId } = req.params;
+
         try {
             const updateUser = await UserModel.findByIdAndUpdate(
                 { _id: userId },
-                { ...body },
+                { name: body.name, picture: body.picture },
                 { new: true }
             );
+
+            if (!updateUser) {
+                res.status(404).send({
+                    status: false,
+                    msg: "User not found",
+                });
+                return;
+            }
+
             res.status(200).send({
                 status: true,
-                msg: `Sucessfully updated`,
-                data: updateUser
+                msg: "User updated successfully",
+                data: updateUser,
             });
         } catch (error) {
             res.status(500).send({
                 status: false,
-                msg: error
-            })
+                msg: error.message,
+            });
         }
     },
+
     updateFollows: async (req, res) => {
         const { body } = req;
         console.log(body.idVisiting)
         try {
             const user = await UserModel.findOneAndUpdate(
                 { _id: body.userId },
-                { "$addToSet": {follows: body.idVisiting} },
+                { "$addToSet": { follows: body.idVisiting } },
                 { new: true }
             );
             const userVisiting = await UserModel.findOneAndUpdate(
-                { _id:  body.idVisiting},
-                { "$addToSet": {followers: body.userId} },
+                { _id: body.idVisiting },
+                { "$addToSet": { followers: body.userId } },
                 { new: true }
             );
             res.status(200).send({
@@ -216,15 +230,15 @@ const userController = {
         const { userName } = req.params;
         try {
             const user = await UserModel
-            .find({
-                "name": {
-                    "$regex": userName,
-                    "$options": "i"
-                }
-            })
-            .lean()
-            .exec();
-            
+                .find({
+                    "name": {
+                        "$regex": userName,
+                        "$options": "i"
+                    }
+                })
+                .lean()
+                .exec();
+
             if (user.length <= 0) {
                 res.status(404).send({
                     status: false,
