@@ -202,11 +202,11 @@ const playlistController = {
                         new: true
                     }
                 )
-                .populate("songs")
+                .populate("playlists")
                 .populate({
-                    path: "songs",
+                    path: "playlists",
                     populate: {
-                        path: "albums"
+                        path: "songs"
                     }
                 })
                 .exec();

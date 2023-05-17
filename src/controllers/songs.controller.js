@@ -50,6 +50,8 @@ const songController = {
                     }
                 })
                 .populate("album")
+                .lean()
+                .exec();
 
             if (song.length <= 0) {
                 res.status(404).send({
