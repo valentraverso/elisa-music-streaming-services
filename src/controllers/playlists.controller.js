@@ -151,6 +151,7 @@ const playlistController = {
         const { body } = req
         try {
             const newPlaylist = await playlistModel.create({
+                owner: userId,
                 ...body
             });
 
