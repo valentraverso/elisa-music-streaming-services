@@ -255,7 +255,6 @@ const userController = {
             });
         }
     },
-
     updateFollows: async (req, res) => {
         const { body } = req;
         try {
@@ -270,7 +269,7 @@ const userController = {
                 { new: true }
             );
 
-            if (!updateUser) {
+            if (!user) {
                 res.status(404).send({
                     status: false,
                     msg: "User not found",
