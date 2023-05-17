@@ -11,7 +11,7 @@ router
     .get("/title/:title", getByTitle)
     .get("/owner/:idOwner", getByOwner)
     .post("/create", postPlaylist)
-    .patch("/update/id", updatePlaylist)
+    .patch("/update/:id", updatePlaylist)
     .patch("/update/likes/:id", verifyRequester, updateLikeSong)
     .patch("/update/dislikes/:id", verifyRequester, updateDislikeSongs)
     .delete("/delete/:id", deletePlaylist);
