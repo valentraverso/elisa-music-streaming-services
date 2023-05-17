@@ -230,7 +230,7 @@ const playlistController = {
             res.status(201).send({
                 status: true,
                 msg: "We create a new playlist",
-                data: playlist,
+                data: user,
             })
         } catch (error) {
             res.status(500).send({
