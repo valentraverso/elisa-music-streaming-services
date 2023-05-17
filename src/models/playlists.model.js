@@ -14,12 +14,28 @@ const playlistSchema = new Schema({
     },
     songs: [{
         type: Schema.Types.ObjectId,
-        required: [true, "You must provide at least one song for the playlist"],
+        required: [false, "You must provide at least one song for the playlist"],
         ref: "songs"
     }],
     img: {
-        public_id: {type: String, required: true},
-        secure_url: {type: String, required: true}
+        public_id: {
+            type: String,
+            required: false,
+            default: "/Home/playlist-default"
+        },
+        secure_url: {
+            type: String,
+            required: false,
+            default: "https://res.cloudinary.com/dppekhvoo/image/upload/v1684312937/Home/playlists/playlist-default.jpg"
+        }
+    },
+    likePlaylist: {
+        type: Boolean,
+        default: false
+    },
+    private: {
+        type: Boolean,
+        default: true
     }
 }, { timestamps: true });
 

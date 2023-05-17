@@ -1,15 +1,19 @@
 const express = require("express");
 const router = express.Router();
 const { playlistController } = require("../controllers");
+const { verifyRequester } = require("../middlewares/verifyRequester");
 
-const { getAllPlaylist, createPlaylist, getById, updatePlaylist, deletePlaylist, getByTitle } = playlistController;
+const { getAllPlaylist, postPlaylist, getById, updatePlaylist, deletePlaylist, getByTitle, getByOwner, updateLikeSong, updateDislikeSongs } = playlistController;
 
 router
     .get("/all", getAllPlaylist)
     .get("/id/:id", getById)
-    .get("/title", getByTitle)
-    .post("/create", createPlaylist)
+    .get("/title/:title", getByTitle)
+    .get("/owner/:idOwner", getByOwner)
+    .post("/create", postPlaylist)
     .patch("/update/id", updatePlaylist)
-    .delete("/delete/:id", deletePlaylist)
+    .patch("/update/likes/:id", verifyRequester, updateLikeSong)
+    .patch("/update/dislikes/:id", verifyRequester, updateDislikeSongs)
+    .delete("/delete/:id", deletePlaylist);
 
 module.exports = router;

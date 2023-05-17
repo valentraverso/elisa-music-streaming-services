@@ -4,23 +4,21 @@ const fs = require("fs-extra");
 
 
 const switchUploadSong = async (body, arraySongs) => {
-    switch (typeof arraySongs) {
-        case "array":
-            return uploadMultipleSongs(body, arraySongs);
-        case "object":
-            const { public_id, secure_url } = uploadSong(arraySongs.tempFilePath);
-            await fs.unlink(arraySongs.tempFilePath)
-
-            const dataResponse = {
-                ...body,
-                file: {
-                    public_id,
-                    secure_url
-                }
-            }
-            console.log(dataResponse)
-            return dataResponse
+    if (arraySongs.length > 1) {
+        return uploadMultipleSongs(body, arraySongs);
     }
+    const { public_id, secure_url } = await uploadSong(arraySongs.tempFilePath);
+    await fs.unlink(arraySongs.tempFilePath)
+
+    const dataResponse = {
+        ...body,
+        file: {
+            public_id,
+            secure_url
+        }
+    }
+
+    return dataResponse
 }
 
 module.exports = switchUploadSong

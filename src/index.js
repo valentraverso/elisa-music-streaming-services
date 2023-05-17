@@ -17,6 +17,7 @@ const {
 } = require("./config/config.js");
 const fileUpload = require("express-fileupload")
 
+console.log("nuevo usuario")
 
 const app = express();
 
@@ -34,12 +35,9 @@ app.use(fileUpload({
 connectDB(app, PORT, DB);
 
 //Routes 
-
 app.use("/albums", albumRouter)
 app.use("/songs", songRouter)
 app.use("/users", userRouter)
 app.use("/mixes", mixesRouter)
 app.use("/genres", genreRouter)
 app.use("/playlists", playlistsRouter)
-
-console.log("Nuevo Usuario")

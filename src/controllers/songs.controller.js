@@ -1,8 +1,5 @@
 const mongoose = require("mongoose");
 const { songModel, albumModel } = require("../models");
-const fs = require("fs-extra");
-const uploadMultipleSongs = require("../utils/upload_multiple_songs");
-const {uploadSong} = require("../utils/cloudinary");
 const switchUploadSong = require("../utils/switch_upload_song");
 
 const songController = {
@@ -52,6 +49,9 @@ const songController = {
                         "$options": "i"
                     }
                 })
+                .populate("album")
+                .lean()
+                .exec();
 
             if (song.length <= 0) {
                 res.status(404).send({
@@ -69,7 +69,7 @@ const songController = {
         } catch (err) {
             res.status(503).send({
                 status: false,
-                msg: "Error",
+                msg: "Error2",
                 data: err.message
             });
         }
@@ -129,25 +129,28 @@ const songController = {
                 msg: "You need to add a song file",
             })
         }
-        console.log(typeof songFile)
-        console.log("file", songFile)
+
         try {
             const data = await switchUploadSong(body, songFile)
-            
-          
 
-            console.log("data", data)
             const song = await songModel
-                .insertMany({
-                    ...data
-                });
+                .insertMany(
+                    data
+                );
 
+            const songsId = song.map(async song => {
+                const updatedAlbum = await albumModel.findByIdAndUpdate(
+                    { _id: song.album },
+                    { "$push": { "songs": song } },
+                    { new: true }
+                )
+            })
 
-            await albumModel.findByIdAndUpdate(
-                { _id: body.album },
-                { "$push": { songs: song._id } },
-                { new: true }
-            )
+            // await albumModel.findByIdAndUpdate(
+            //     { _id: body.album },
+            //     { "$push": { songs: song._id } },
+            //     { new: true }
+            // )
 
             res.status(200).send({
                 status: true,
@@ -157,7 +160,7 @@ const songController = {
         } catch (err) {
             res.status(503).send({
                 status: false,
-                msg: "Error",
+                msg: "ErrorPost",
                 data: err.message
             });
         }
