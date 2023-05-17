@@ -192,7 +192,6 @@ const userController = {
     },
     updateFollows: async (req, res) => {
         const { body } = req;
-        console.log(body.idVisiting)
         try {
             const user = await UserModel.findOneAndUpdate(
                 { _id: body.userId },
@@ -230,6 +229,7 @@ const userController = {
                 { "$pull": {followers: body.userId} },
                 { new: true }
             );
+            console.log(user)
             res.status(200).send({
                 status: true,
                 msg: `Sucessfully updated`,
