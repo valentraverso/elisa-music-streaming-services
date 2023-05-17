@@ -215,9 +215,8 @@ const userController = {
             })
         }
     },
-<<<<<<< HEAD
-    updateFollowsAlbum: async (req, res) => {
-        const { id } = req.params;
+    updateFollowsTypes: async (req, res) => {
+        const { id, type } = req.params;
         const { userId } = req.body;
 
         try {
@@ -227,7 +226,7 @@ const userController = {
                         _id: userId
                     },
                     {
-                        "$addToSet": { albums: id }
+                        "$addToSet": { [type]: id }
                     },
                     {
                         new: true
@@ -246,8 +245,8 @@ const userController = {
             })
         }
     },
-    updateUnfollowsAlbum: async (req, res) => {
-        const { id } = req.params;
+    updateUnfollowsTypes: async (req, res) => {
+        const { id, type } = req.params;
         const { userId } = req.body;
 
         try {
@@ -257,7 +256,7 @@ const userController = {
                         _id: userId
                     },
                     {
-                        "$pull": { albums: id }
+                        "$pull": { [type]: id }
                     },
                     {
                         new: true
@@ -273,19 +272,21 @@ const userController = {
             res.status(500).send({
                 status: false,
                 msg: err.message,
-=======
+            });
+        }
+    },
     updateUnFollows: async (req, res) => {
         const { body } = req;
         console.log(body.idVisiting)
         try {
             const user = await UserModel.findOneAndUpdate(
                 { _id: body.userId },
-                { "$pull": {follows: body.idVisiting} },
+                { "$pull": { follows: body.idVisiting } },
                 { new: true }
             );
             const userVisiting = await UserModel.findOneAndUpdate(
-                { _id:  body.idVisiting},
-                { "$pull": {followers: body.userId} },
+                { _id: body.idVisiting },
+                { "$pull": { followers: body.userId } },
                 { new: true }
             );
             console.log(user)
@@ -298,7 +299,6 @@ const userController = {
             res.status(500).send({
                 status: false,
                 msg: error
->>>>>>> 1e5233c25ff7c4aa7499ae64f8ccbcee145af1c6
             })
         }
     },
