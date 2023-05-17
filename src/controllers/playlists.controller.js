@@ -108,14 +108,12 @@ const playlistController = {
                 data: playlist
             })
         } catch (error) {
-          console.error(error);
-          res.status(500).send({
-            status: false,
-            msg: error,
-          });
+            res.status(500).send({
+                status: false,
+                msg: error,
+            })
         }
-      },
-      
+    },
     getByTitle: async (req, res) => {
         try {
             const playlistTitle = req.params.title;
@@ -150,12 +148,6 @@ const playlistController = {
     postPlaylist: async (req, res) => {
         const { body } = req
         try {
-<<<<<<< HEAD
-            const newPlaylist = await playlistModel.create({
-                owner: userId,
-                ...body
-            });
-=======
             const playlist = await playlistModel
                 .create({
                     ...body
@@ -175,7 +167,6 @@ const playlistController = {
                     }
                 );
 
->>>>>>> 53dc1dd917f3088195be750ff437e0bdd37a2e30
 
             res.status(201).send({
                 status: true,
@@ -337,42 +328,24 @@ const playlistController = {
     },
     updatePlaylist: async (req, res) => {
         try {
-            const playlistId = req.params.id;
-            const newSongs = req.body.songs;
-          
-            if (!newSongs || newSongs.length === 0) {
-              return res.status(400).send({
-                status: false,
-                msg: "Songs array is required and must not be empty",
-              });
-            }
-          
-            const playlist = await playlistModel.findByIdAndUpdate(
-              playlistId,
-              { $push: { songs: { $each: newSongs } } },
-              { new: true }
-            );
-          
-            if (!playlist) {
-              return res.status(404).send({
-                status: false,
-                msg: "Playlist not found",
-              });
-            }
-          
+            const playlistId = req.params.id
+            const updatedPlaylist = await playlistModel.findByIdAndUpdate(
+                playlistId,
+                req.body,
+                { new: true },
+            )
             res.status(201).send({
-              status: true,
-              msg: "Playlist updated",
-              data: playlist,
-            });
-          } catch (error) {
-            console.error(error);
+                status: true,
+                msg: "Playlist updated",
+                data: updatedPlaylist,
+            })
+        } catch (error) {
             res.status(500).send({
-              status: false,
-              msg: "An error occurred while updating the playlist",
-            });
-          }
-      },
+                status: false,
+                msg: error,
+            })
+        }
+    },
     deletePlaylist: async (req, res) => {
         try {
             const playlistId = req.params.id
