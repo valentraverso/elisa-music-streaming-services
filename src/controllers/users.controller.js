@@ -106,6 +106,10 @@ const userController = {
                     path: "playlists",
                     populate: "songs"
                 })
+                .populate({
+                    path: "albums",
+                    populate: "songs"
+                })
                 .lean()
                 .exec();
 
