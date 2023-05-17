@@ -1,4 +1,4 @@
-const { albumModel, songModel } = require("../models");
+const { albumModel, songModel, UserModel } = require("../models");
 const fs = require("fs-extra");
 const { uploadAlbum } = require("../utils/cloudinary");
 
@@ -55,7 +55,7 @@ const albumController = {
         }
     },
     getManyById: async (req, res) => {
-        const { params: {ids} } = req;
+        const { params: { ids } } = req;
 
         const arrayId = ids.split(",");
 
@@ -74,21 +74,21 @@ const albumController = {
                 .lean()
                 .exec();
 
-                console.log(album)
+            console.log(album)
 
-                if(album.length < 1){
-                    res.status(404).send({
-                        status: false,
-                        msg: "We couldn't find albums"
-                    });
-                    return;
-                }
+            if (album.length < 1) {
+                res.status(404).send({
+                    status: false,
+                    msg: "We couldn't find albums"
+                });
+                return;
+            }
 
-                res.status(200).send({
-                    status: true,
-                    msg: "We find albums",
-                    data: album
-                })
+            res.status(200).send({
+                status: true,
+                msg: "We find albums",
+                data: album
+            })
         } catch (err) {
             res.status(503).send({
                 status: false,
@@ -123,57 +123,6 @@ const albumController = {
                 status: false,
                 msg: error,
             });
-        }
-    },
-    createAlbum: async (req, res) => {
-        const { body, files } = req
-        if (!files.img) {
-            res.status(409).send({
-                status: false,
-                msg: "You need to add a image",
-            })
-            return;
-        }
-        try {
-            const { public_id, secure_url } = await uploadAlbum(files.img.tempFilePath)
-            await fs.unlink(files.img.tempFilePath)
-
-            const newAlbum = await albumModel.create({
-                ...body,
-                img: { public_id, secure_url }
-            });
-
-            res.status(201).send({
-                status: true,
-                msg: "We create a new album",
-                data: newAlbum,
-            })
-        } catch (error) {
-            res.status(500).send({
-                status: false,
-                msg: error,
-            })
-        }
-    },
-    updateAlbum: async (req, res) => {
-        try {
-            const albumId = req.params.id
-
-            const updatedAlbum = await albumModel.findByIdAndUpdate(
-                albumId,
-                req.body,
-                { new: true },
-            )
-            res.status(201).send({
-                status: true,
-                msg: "Album update",
-                data: updatedAlbum,
-            })
-        } catch (error) {
-            res.status(500).send({
-                status: false,
-                msg: error,
-            })
         }
     },
     getById: async (req, res) => {
@@ -237,7 +186,62 @@ const albumController = {
             });
         }
     },
+    createAlbum: async (req, res) => {
+        const { body, files } = req
+        if (!files.img) {
+            res.status(409).send({
+                status: false,
+                msg: "You need to add a image",
+            })
+            return;
+        }
+        try {
+            const { public_id, secure_url } = await uploadAlbum(files.img.tempFilePath)
+            await fs.unlink(files.img.tempFilePath)
 
+            const newAlbum = await albumModel.create({
+                ...body,
+                img: { public_id, secure_url }
+            });
+            const addAlbumToUser = await UserModel.findByIdAndUpdate(
+                { _id: body.owner },
+                { "$addToSet": { albums: newAlbum._id} },
+                { new: true }
+            ); 
+
+            res.status(201).send({
+                status: true,
+                msg: "We create a new album",
+                data: newAlbum,
+            })
+        } catch (error) {
+            res.status(500).send({
+                status: false,
+                msg: error,
+            })
+        }
+    },
+    updateAlbum: async (req, res) => {
+        try {
+            const albumId = req.params.id
+
+            const updatedAlbum = await albumModel.findByIdAndUpdate(
+                albumId,
+                req.body,
+                { new: true },
+            )
+            res.status(201).send({
+                status: true,
+                msg: "Album update",
+                data: updatedAlbum,
+            })
+        } catch (error) {
+            res.status(500).send({
+                status: false,
+                msg: error,
+            })
+        }
+    },
     deleteAlbum: async (req, res) => {
         try {
             const albumId = req.params.id
@@ -266,11 +270,11 @@ const albumController = {
     },
     deleteManyAlbums: async (req, res) => {
         try {
-            const {title} = req.params
+            const { title } = req.params
             const titleRegex = new RegExp(`${title}`)
             const albumToDelete = await albumModel.find()
             const deletedAlbum = await albumModel.deleteMany(
-            
+
             )
             if (!deletedAlbum) {
                 return res.status(404).send({
@@ -283,7 +287,7 @@ const albumController = {
             albumToDelete.map(async album => {
                 console.log(album._id)
             })
-            
+
             await songModel.deleteMany();
 
             res.status(200).send({

@@ -19,8 +19,21 @@ const playlistSchema = new Schema({
         ref: "songs"
     }],
     img: {
+<<<<<<< HEAD
         public_id: {type: String, required: false},
         secure_url: {type: String, required: false}
+=======
+        public_id: {
+            type: String,
+            required: false,
+            default: "/Home/playlist-default"
+        },
+        secure_url: {
+            type: String,
+            required: false,
+            default: "https://res.cloudinary.com/dppekhvoo/image/upload/v1684312937/Home/playlists/playlist-default.jpg"
+        }
+>>>>>>> 53dc1dd917f3088195be750ff437e0bdd37a2e30
     },
     likePlaylist: {
         type: Boolean,
