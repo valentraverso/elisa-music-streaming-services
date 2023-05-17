@@ -17,8 +17,6 @@ const {
 } = require("./config/config.js");
 const fileUpload = require("express-fileupload")
 
-console.log("nuevo usuario")
-
 const app = express();
 
 // Middlewares

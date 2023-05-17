@@ -59,8 +59,6 @@ const albumController = {
 
         const arrayId = ids.split(",");
 
-        console.log(arrayId);
-
         try {
             const album = await albumModel
                 .find({
@@ -73,8 +71,6 @@ const albumController = {
                 })
                 .lean()
                 .exec();
-
-            console.log(album)
 
             if (album.length < 1) {
                 res.status(404).send({
@@ -282,10 +278,8 @@ const albumController = {
                     msg: `album ${albumId} not found`
                 });
             }
-            // console.log(albumToDelete)
-            // const {...albums} = {albumToDelete}
+         
             albumToDelete.map(async album => {
-                console.log(album._id)
             })
 
             await songModel.deleteMany();
