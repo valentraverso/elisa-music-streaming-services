@@ -1,6 +1,8 @@
 const { mongoose } = require("mongoose");
 const { playlistModel, UserModel } = require("../models");
 const { songController } = require("./songs.controller");
+const { uploadPlaylistImage } = require("../utils/cloudinary");
+const fs = require("fs-extra");
 
 const playlistController = {
     getAllPlaylist: async (req, res) => {
@@ -10,7 +12,7 @@ const playlistController = {
                     {
                         private: false
                     }
-                    )
+                )
                 .limit(10)
                 .populate({
                     path: "songs",
@@ -252,6 +254,48 @@ const playlistController = {
             })
         }
     },
+    updatePlaylistImage: async (req, res) => {
+        const { title, private, userId } = req.body;
+        const { id } = req.params;
+        const { playlistImg } = req.files;
+
+        try {
+            const { public_id, secure_url } = await uploadPlaylistImage(playlistImg.tempFilePath);
+            await fs.unlink(playlistImg.tempFilePath)
+
+            const updatePlaylist = await playlistModel.findOneAndUpdate(
+                { _id: id, owner: userId },
+                {
+                    title: title,
+                    img: {
+                        public_id,
+                        secure_url
+                    },
+                    private: private
+                },
+                { new: true }
+            );
+
+            if (!updatePlaylist) {
+                res.status(404).send({
+                    status: false,
+                    msg: "Playlist not found",
+                });
+                return;
+            }
+
+            res.status(200).send({
+                status: true,
+                msg: "Playlist updated successfully",
+                data: updatePlaylist,
+            });
+        } catch (error) {
+            res.status(500).send({
+                status: false,
+                msg: error.message,
+            });
+        }
+    },
     updateLikeSong: async (req, res) => {
         const { id } = req.params;
         const { likePlaylist } = req.body;
@@ -341,48 +385,78 @@ const playlistController = {
     },
     updateEliminateFromPlaylists: async (req, res) => {
         const { playlistId, songId } = req.params;
-      
+
         if (!mongoose.Types.ObjectId.isValid(songId) || !mongoose.Types.ObjectId.isValid(playlistId)) {
-          res.status(409).send({
-            status: false,
-            msg: "Invalid ID",
-          });
-          return;
+            res.status(409).send({
+                status: false,
+                msg: "Invalid ID",
+            });
+            return;
         }
-      
-        try {
-          const playlists = await playlistModel.updateMany(
-            { _id: playlistId },
-            {
-              $pull: { songs: songId },
-            },
-            {
-              new: true,
-            }
-          );
-      
-          res.status(200).send({
-            status: true,
-            msg: "Song disliked from all playlists",
-            data: playlists,
-          });
-        } catch (err) {
-          res.status(503).send({
-            status: false,
-            msg: err.message,
-          });
-        }
-      },
-    updatePlaylist: async (req, res) => {
-        const { songId } = req.body;
-        const { id: playlistId } = req.params;
 
         try {
+            const playlists = await playlistModel.updateMany(
+                { _id: playlistId },
+                {
+                    $pull: { songs: songId },
+                },
+                {
+                    new: true,
+                }
+            );
+
+            res.status(200).send({
+                status: true,
+                msg: "Song disliked from all playlists",
+                data: playlists,
+            });
+        } catch (err) {
+            res.status(503).send({
+                status: false,
+                msg: err.message,
+            });
+        }
+    },
+    updatePlaylistInfo: async (req, res) => {
+        const { title, private, userId } = req.body;
+        const { id: playlistId } = req.params;
+        try {
             const playlist = await playlistModel
-                .findByIdAndUpdate(
-                    playlistId,
+                .findOneAndUpdate(
                     {
-                        "$addToSet": { songs: songId }
+                        _id: playlistId,
+                        owner: userId
+                    },
+                    {
+                        title: title,
+                        private: private
+                    },
+                    { new: true },
+                )
+            return res.status(200).send({
+                status: true,
+                msg: "Playlist updated",
+                data: playlist,
+            })
+        } catch (error) {
+            res.status(500).send({
+                status: false,
+                msg: error,
+            })
+        }
+    },
+    updatePlaylist: async (req, res) => {
+        const { songId, userId } = req.body;
+        const { id: playlistId } = req.params;
+        try {
+            const playlist = await playlistModel
+                .findOneAndUpdate(
+                    {
+                        _id: playlistId,
+                        owner: userId
+                    },
+                    {
+                        "$addToSet": { songs: songId },
                     },
                     { new: true },
                 )
