@@ -7,8 +7,14 @@ const albumController = {
     getAllAlbum: async (req, res) => {
         try {
             const albums = await albumModel
-                .find({})
-                .sort({ _id: -1 })
+                .find(
+                    {
+                        status: 1
+                    }
+                )
+                .sort(
+                    { _id: -1 }
+                )
                 .populate("songs")
                 .limit(6);
 
@@ -31,7 +37,10 @@ const albumController = {
         try {
             const albumId = req.params.id
             const album = await albumModel
-                .findById(albumId)
+                .findOne({
+                    _id: albumId,
+                    status: 1
+                })
                 .populate("songs")
                 .lean()
                 .exec();
@@ -64,7 +73,8 @@ const albumController = {
                 .find({
                     _id: {
                         $in: arrayId
-                    }
+                    },
+                    status: 1
                 })
                 .sort({
                     _id: -1
@@ -96,7 +106,10 @@ const albumController = {
         try {
             const albumTitle = req.params.title;
             const album = await albumModel
-                .find({ title: albumTitle })
+                .find({
+                    title: albumTitle,
+                    status: 1
+                })
                 .populate({
                     path: "songs",
                     populate: "album"
@@ -121,33 +134,6 @@ const albumController = {
             });
         }
     },
-    getById: async (req, res) => {
-        try {
-            const albumId = req.params.id
-            const album = await albumModel
-                .findById(albumId)
-                .populate("songs")
-                .lean()
-                .exec();
-
-            if (!album) {
-                return res.status(404).send({
-                    status: false,
-                    msg: `album ${albumId} not found`
-                })
-            }
-            res.status(200).send({
-                status: true,
-                msg: "Album found it",
-                data: album
-            })
-        } catch (error) {
-            res.status(500).send({
-                status: false,
-                msg: error,
-            })
-        }
-    },
     getByTitle: async (req, res) => {
         try {
             const albumTitle = req.params.title;
@@ -156,7 +142,8 @@ const albumController = {
                     "title": {
                         "$regex": albumTitle,
                         "$options": "i"
-                    }
+                    },
+                    status: 1
                 })
                 .populate({
                     path: "songs",
