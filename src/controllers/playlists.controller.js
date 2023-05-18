@@ -1,5 +1,6 @@
 const { mongoose } = require("mongoose");
 const { playlistModel, UserModel } = require("../models");
+const { songController } = require("./songs.controller");
 
 const playlistController = {
     getAllPlaylist: async (req, res) => {
@@ -160,10 +161,10 @@ const playlistController = {
                         _id: playlist.owner
                     },
                     {
-                        "$addToSet": {playlists: playlist._id}
+                        "$addToSet": { playlists: playlist._id }
                     },
                     {
-                        new:true
+                        new: true
                     }
                 );
 
@@ -326,45 +327,66 @@ const playlistController = {
             })
         }
     },
-  updatePlaylist: async (req, res) => {
-    try {
-        const playlistId = req.params.id;
-        const songId = req.body.songId;
-
-        const playlist = await playlistModel.findById(playlistId);
-
-        if (!playlist) {
-            return res.status(404).send({
-                status: false,
-                msg: "Playlist not found",
-            });
-        }
-
-        // Check if the song already exists in the playlist
-        const existingSongIndex = playlist.songs.findIndex((song) => song === songId);
-        if (existingSongIndex !== -1) {
-            return res.status(400).send({
-                status: false,
-                msg: "Song already exists in the playlist",
-            });
-        }
-
-        // Add the song to the playlist
-        playlist.songs.push(songId);
-        const updatedPlaylist = await playlist.save();
-
-        res.status(201).send({
-            status: true,
-            msg: "Playlist updated",
-            data: updatedPlaylist,
-        });
-    } catch (error) {
-        res.status(500).send({
+    updateEliminateFromPlaylists: async (req, res) => {
+        const { playlistId, songId } = req.params;
+      
+        if (!mongoose.Types.ObjectId.isValid(songId) || !mongoose.Types.ObjectId.isValid(playlistId)) {
+          res.status(409).send({
             status: false,
-            msg: error,
-        });
-    }
-},
+            msg: "Invalid ID",
+          });
+          return;
+        }
+      
+        try {
+          const playlists = await playlistModel.updateMany(
+            { _id: playlistId },
+            {
+              $pull: { songs: songId },
+            },
+            {
+              new: true,
+            }
+          );
+      
+          res.status(200).send({
+            status: true,
+            msg: "Song disliked from all playlists",
+            data: playlists,
+          });
+        } catch (err) {
+          res.status(503).send({
+            status: false,
+            msg: err.message,
+          });
+        }
+      },
+    updatePlaylist: async (req, res) => {
+        const { songId } = req.body;
+        const { id: playlistId } = req.params;
+
+        try {
+            const playlist = await playlistModel
+                .findByIdAndUpdate(
+                    playlistId,
+                    {
+                        "$addToSet": { songs: songId }
+                    },
+                    { new: true },
+                )
+
+            res.status(200).send({
+                status: true,
+                msg: "Playlist updated",
+                data: playlist,
+            })
+        } catch (error) {
+            res.status(500).send({
+                status: false,
+                msg: error,
+            })
+        }
+    },
     deletePlaylist: async (req, res) => {
         try {
             const playlistId = req.params.id
