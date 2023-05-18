@@ -14,7 +14,7 @@ router
     .get("/username/:username", getByUsername)
     .patch("/update/array/:userId", updateArray)
     .patch("/update/:userId", updateBasic)
-    .patch("/update/follows", updateFollows)
+    .patch("/updatefollows", updateFollows)
     .patch("/updateunfollows", updateUnFollows)
     .patch("/update/image/:userId", updateUserImage)
     .patch("/update/:type/follow/:id", verifyRequester, updateFollowsTypes)
