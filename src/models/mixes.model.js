@@ -7,13 +7,13 @@ const mixSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'songs',
-      required: true,
+    
     },
   ],
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'user',
-    required: true,
+    
   },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },

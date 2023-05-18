@@ -87,11 +87,13 @@ const mixController = {
                 data: newMix,
             });
         } catch (error) {
+            console.error(error);
             res.status(500).send({
-                status: false,
-                msg: error,
+              status: false,
+              msg: error,
             });
-        }
+          }
+          
     },
 
 
