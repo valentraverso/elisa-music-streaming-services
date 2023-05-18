@@ -257,13 +257,17 @@ const userController = {
     },
     updateFollows: async (req, res) => {
         const { body } = req;
+       
         try {
-            const user = await UserModel.findOneAndUpdate(
+            const user = await UserModel
+            .findOneAndUpdate(
                 { _id: body.userId },
                 { "$addToSet": { follows: body.idVisiting } },
                 { new: true }
             );
-            const userVisiting = await UserModel.findOneAndUpdate(
+
+            const userVisiting = await UserModel
+            .findOneAndUpdate(
                 { _id: body.idVisiting },
                 { "$addToSet": { followers: body.userId } },
                 { new: true }
@@ -362,7 +366,7 @@ const userController = {
                 { "$pull": { followers: body.userId } },
                 { new: true }
             );
-            console.log(user)
+
             res.status(200).send({
                 status: true,
                 msg: `Sucessfully updated`,
@@ -372,36 +376,6 @@ const userController = {
             res.status(500).send({
                 status: false,
                 msg: error
-            })
-        }
-    },
-    updateFollowsTypes: async (req, res) => {
-        const { id, type } = req.params;
-        const { userId } = req.body;
-
-        try {
-            const user = await UserModel
-                .findOneAndUpdate(
-                    {
-                        _id: userId
-                    },
-                    {
-                        "$addToSet": { [type]: id }
-                    },
-                    {
-                        new: true
-                    }
-                );
-
-            res.status(200).send({
-                status: true,
-                msg: `Sucessfully followed album`,
-                data: user
-            });
-        } catch (err) {
-            res.status(500).send({
-                status: false,
-                msg: err.message,
             })
         }
     },
@@ -437,7 +411,6 @@ const userController = {
     },
     updateUnFollows: async (req, res) => {
         const { body } = req;
-        console.log(body.idVisiting)
         try {
             const user = await UserModel.findOneAndUpdate(
                 { _id: body.userId },
@@ -449,7 +422,7 @@ const userController = {
                 { "$pull": { followers: body.userId } },
                 { new: true }
             );
-            console.log(user)
+
             res.status(200).send({
                 status: true,
                 msg: `Sucessfully updated`,

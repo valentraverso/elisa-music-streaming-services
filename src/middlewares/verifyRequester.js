@@ -22,7 +22,7 @@ async function verifyRequester(req, res, next) {
 
             return;
         }
-
+        
         next();
     } catch (err) {
         res.status(503).send({
