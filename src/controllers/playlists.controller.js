@@ -1,5 +1,6 @@
 const { mongoose } = require("mongoose");
 const { playlistModel, UserModel } = require("../models");
+const { songController } = require("./songs.controller");
 
 const playlistController = {
     getAllPlaylist: async (req, res) => {
@@ -160,10 +161,10 @@ const playlistController = {
                         _id: playlist.owner
                     },
                     {
-                        "$addToSet": {playlists: playlist._id}
+                        "$addToSet": { playlists: playlist._id }
                     },
                     {
-                        new:true
+                        new: true
                     }
                 );
 
@@ -327,17 +328,23 @@ const playlistController = {
         }
     },
     updatePlaylist: async (req, res) => {
+        const { songId } = req.body;
+        const { id: playlistId } = req.params;
+
         try {
-            const playlistId = req.params.id
-            const updatedPlaylist = await playlistModel.findByIdAndUpdate(
-                playlistId,
-                req.body,
-                { new: true },
-            )
-            res.status(201).send({
+            const playlist = await playlistModel
+                .findByIdAndUpdate(
+                    playlistId,
+                    {
+                        "$addToSet": { songs: songId }
+                    },
+                    { new: true },
+                )
+
+            res.status(200).send({
                 status: true,
                 msg: "Playlist updated",
-                data: updatedPlaylist,
+                data: playlist,
             })
         } catch (error) {
             res.status(500).send({
