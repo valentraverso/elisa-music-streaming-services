@@ -339,6 +339,40 @@ const playlistController = {
             })
         }
     },
+    updateEliminateFromPlaylists: async (req, res) => {
+        const { playlistId, songId } = req.params;
+      
+        if (!mongoose.Types.ObjectId.isValid(songId) || !mongoose.Types.ObjectId.isValid(playlistId)) {
+          res.status(409).send({
+            status: false,
+            msg: "Invalid ID",
+          });
+          return;
+        }
+      
+        try {
+          const playlists = await playlistModel.updateMany(
+            { _id: playlistId },
+            {
+              $pull: { songs: songId },
+            },
+            {
+              new: true,
+            }
+          );
+      
+          res.status(200).send({
+            status: true,
+            msg: "Song disliked from all playlists",
+            data: playlists,
+          });
+        } catch (err) {
+          res.status(503).send({
+            status: false,
+            msg: err.message,
+          });
+        }
+      },
     updatePlaylist: async (req, res) => {
         const { songId } = req.body;
         const { id: playlistId } = req.params;
