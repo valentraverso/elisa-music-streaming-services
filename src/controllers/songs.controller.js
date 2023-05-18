@@ -6,8 +6,13 @@ const songController = {
     getAllSongs: async (req, res) => {
         try {
             const song = await songModel
-                .find({})
-                .populate("album");
+                .find(
+                    {
+                        status: 1
+                    }
+                )
+                .populate("album")
+                .limit(20);
 
 
             if (!song) {
@@ -47,8 +52,10 @@ const songController = {
                     "title": {
                         "$regex": songTitle,
                         "$options": "i"
-                    }
+                    },
+                    status: 1
                 })
+                .limit(20)
                 .populate("album")
                 .lean()
                 .exec();
@@ -87,7 +94,12 @@ const songController = {
 
         try {
             const song = await songModel
-                .findById(idSong)
+                .findOne(
+                    {
+                        _id: idSong ,
+                        status: 1
+                    }
+                )
                 .populate("album")
                 .lean()
                 .exec();
