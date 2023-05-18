@@ -20,6 +20,6 @@ router
     .patch("/update/:type/follow/:id", verifyRequester, updateFollowsTypes)
     .patch("/update/:type/unfollow/:id", verifyRequester, updateUnfollowsTypes)
     .patch("/delete/:userId", deleteUser)
-    .post("/create", postUser, createLikeSongs)
+    .post("/create", postUser, createLikeSongs);
 
 module.exports = router;
