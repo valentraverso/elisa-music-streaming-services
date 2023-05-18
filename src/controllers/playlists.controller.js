@@ -6,7 +6,12 @@ const playlistController = {
     getAllPlaylist: async (req, res) => {
         try {
             const playlists = await playlistModel
-                .find({})
+                .find(
+                    {
+                        private: false
+                    }
+                    )
+                .limit(10)
                 .populate({
                     path: "songs",
                     populate: "album"
