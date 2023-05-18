@@ -225,6 +225,7 @@ const albumController = {
             })
         }
     },
+    
     deleteAlbum: async (req, res, next) => {
         const { id: albumId } = req.params;
         const { userId } = req.body;
