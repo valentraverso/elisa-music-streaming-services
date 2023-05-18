@@ -240,6 +240,46 @@ const songController = {
                 msg: "We have a problem while deleting the song."
             })
         }
+    },
+    deleteSongsByAlbum: async (req, res) => {
+        const { id: albumId } = req.params;
+        const { userId } = req.body;
+
+        try {
+            const song = await songModel
+                .updateMany(
+                    {
+                        album: albumId,
+                        owner: userId
+                    },
+                    {
+                        "$set": { status: 0 }
+                    },
+                    {
+                        new: true
+                    }
+                );
+
+            if (song < 1) {
+                return res.status(400).send({
+                    status: false,
+                    msg: "We couldn't delete songs"
+                })
+            }
+
+            const user = res.locals.user;
+
+            res.status(201).send({
+                status: true,
+                msg: "Song of album deleted",
+                data: user,
+            })
+        } catch (err) {
+            res.status(500).send({
+                status: false,
+                msg: err.message,
+            })
+        }
     }
 }
 

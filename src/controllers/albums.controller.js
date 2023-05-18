@@ -201,9 +201,9 @@ const albumController = {
             });
             const addAlbumToUser = await UserModel.findByIdAndUpdate(
                 { _id: body.owner },
-                { "$addToSet": { albums: newAlbum._id} },
+                { "$addToSet": { albums: newAlbum._id } },
                 { new: true }
-            ); 
+            );
 
             res.status(201).send({
                 status: true,
@@ -238,29 +238,49 @@ const albumController = {
             })
         }
     },
-    deleteAlbum: async (req, res) => {
+    deleteAlbum: async (req, res, next) => {
+        const { id: albumId } = req.params;
+        const { userId } = req.body;
+
         try {
-            const albumId = req.params.id
-            const deletedAlbum = await albumModel.findByIdAndDelete(
-                albumId,
-            )
+            const deletedAlbum = await albumModel
+                .findOneAndUpdate(
+                    {
+                        _id: albumId,
+                        owner: userId
+                    },
+                    {
+                        status: 0
+                    }
+                )
+
             if (!deletedAlbum) {
                 return res.status(404).send({
                     status: false,
-                    msg: `album ${albumId} not found`
+                    msg: `We can't delete the album`
                 });
             }
 
-            await songModel.deleteMany({ album: albumId });
+            const user = await UserModel
+                .findOneAndUpdate(
+                    {
+                        _id: userId
+                    },
+                    {
+                        "$pull": { albums: albumId }
+                    },
+                    {
+                        new: true
+                    }
+                )
 
-            res.status(200).send({
-                status: true,
-                msg: "Album and related songs deleted",
-            })
-        } catch (error) {
+            res.locals.user = user;
+
+            next();
+        } catch (err) {
             res.status(500).send({
                 status: false,
-                msg: error,
+                msg: err.message,
             })
         }
     },
@@ -278,7 +298,7 @@ const albumController = {
                     msg: `album ${albumId} not found`
                 });
             }
-         
+
             albumToDelete.map(async album => {
             })
 
