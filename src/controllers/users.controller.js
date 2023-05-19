@@ -68,7 +68,6 @@ const userController = {
             })
         }
     },
-
     getBySub: async (req, res) => {
         const { sub } = req.auth.payload;
 
@@ -234,7 +233,6 @@ const userController = {
             });
         }
     },
-
     updateUserImage: async (req, res) => {
         const { body } = req;
         const { userId } = req.params;
@@ -330,7 +328,12 @@ const userController = {
                     {
                         new: true
                     }
-                );
+                )
+                .populate({
+                    path: "playlists",
+                    populate: "songs"
+                })
+                ;
 
             res.status(200).send({
                 status: true,
@@ -360,63 +363,11 @@ const userController = {
                     {
                         new: true
                     }
-                );
-
-            res.status(200).send({
-                status: true,
-                msg: `Sucessfully unfollowed album`,
-                data: user
-            });
-        } catch (err) {
-            res.status(500).send({
-                status: false,
-                msg: err.message,
-            });
-        }
-    },
-    updateUnFollows: async (req, res) => {
-        const { body } = req;
-        try {
-            const user = await UserModel.findOneAndUpdate(
-                { _id: body.userId },
-                { "$pull": { follows: body.idVisiting } },
-                { new: true }
-            );
-            const userVisiting = await UserModel.findOneAndUpdate(
-                { _id: body.idVisiting },
-                { "$pull": { followers: body.userId } },
-                { new: true }
-            );
-
-            res.status(200).send({
-                status: true,
-                msg: `Sucessfully updated`,
-                data: user
-            });
-        } catch (error) {
-            res.status(500).send({
-                status: false,
-                msg: error
-            })
-        }
-    },
-    updateUnfollowsTypes: async (req, res) => {
-        const { id, type } = req.params;
-        const { userId } = req.body;
-
-        try {
-            const user = await UserModel
-                .findOneAndUpdate(
-                    {
-                        _id: userId
-                    },
-                    {
-                        "$pull": { [type]: id }
-                    },
-                    {
-                        new: true
-                    }
-                );
+                )
+                .populate({
+                    path: "playlists",
+                    populate: "songs"
+                });
 
             res.status(200).send({
                 status: true,
