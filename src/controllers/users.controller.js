@@ -7,6 +7,8 @@ const userController = {
         const { auth: { payload: { sub } } } = req;
         const { name, email, img, role, username, genres } = req.body
 
+        console.log(genres)
+
         try {
             const searchIfCreated = await UserModel
                 .findOne({
@@ -43,7 +45,7 @@ const userController = {
                         sub,
                         role,
                         username,
-                        genres
+                        "$set" : {genres: genres}
                     }
                 );
 
@@ -91,6 +93,15 @@ const userController = {
                 return;
             }
 
+            const albumsShow = user.albums.filter(album => album.status === 1)
+            const playlistShow = user.playlists.filter(playlist => !playlist.private)
+
+            const userClear = {
+                ...user,
+                albums: albumsShow,
+                
+            }
+
             res.status(200).send({
                 status: true,
                 data: user
@@ -128,10 +139,12 @@ const userController = {
             }
 
             const albumsShow = user.albums.filter(album => album.status === 1)
+            const playlistShow = user.playlists.filter(playlist => !playlist.private)
 
             const userClear = {
                 ...user,
-                albums: albumsShow
+                albums: albumsShow,
+                playlists: playlistShow
             }
 
             res.status(200).send({
