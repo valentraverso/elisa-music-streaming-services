@@ -66,7 +66,6 @@ const userController = {
             })
         }
     },
-
     getBySub: async (req, res) => {
         const { sub } = req.auth.payload;
 
