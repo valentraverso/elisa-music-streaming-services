@@ -29,8 +29,16 @@ const uploadUserImage = async (filePath) => {
     })
 }
 
+const uploadPlaylistImage = async (filePath) => {
+    return await cloudinary.uploader.upload(filePath, {
+        resource_type: 'image',
+        folder: "Home/playlists"
+    })
+}
+
 module.exports = {
     uploadAlbum,
     uploadSong,
-    uploadUserImage
+    uploadUserImage,
+    uploadPlaylistImage
 };
