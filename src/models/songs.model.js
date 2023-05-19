@@ -48,6 +48,10 @@ const songSchema = new Schema ({
         type: Schema.Types.ObjectId,
         required: [false, "You must provide the ID of the statistics"],
         max: [1, "The statistic can be link to 1 ID only"]
+    },
+    status: {
+        type: Number,
+        default: 1
     }
 });
 

@@ -1,11 +1,19 @@
 const { mongoose } = require("mongoose");
 const { playlistModel, UserModel } = require("../models");
+const { songController } = require("./songs.controller");
+const { uploadPlaylistImage } = require("../utils/cloudinary");
+const fs = require("fs-extra");
 
 const playlistController = {
     getAllPlaylist: async (req, res) => {
         try {
             const playlists = await playlistModel
-                .find({})
+                .find(
+                    {
+                        private: false
+                    }
+                )
+                .limit(10)
                 .populate({
                     path: "songs",
                     populate: "album"
@@ -17,7 +25,7 @@ const playlistController = {
                     msg: "We couldn't find playlists",
                 })
             }
-            
+
             res.status(200).send(
                 playlists
             )
@@ -148,14 +156,37 @@ const playlistController = {
     postPlaylist: async (req, res) => {
         const { body } = req
         try {
-            const newPlaylist = await playlistModel.create({
-                ...body
-            });
+            const playlist = await playlistModel
+                .create({
+                    ...body
+                })
+                ;
+
+            const user = await UserModel
+                .findOneAndUpdate(
+                    {
+                        _id: playlist.owner
+                    },
+                    {
+                        "$addToSet": { playlists: playlist._id }
+                    },
+                    {
+                        new: true
+                    }
+                )
+                .populate("playlists")
+                .populate({
+                    path: "playlists",
+                    populate: {
+                        path: "songs"
+                    }
+                });
+
 
             res.status(201).send({
                 status: true,
                 msg: "We create a new playlist",
-                data: newPlaylist,
+                data: user,
             })
         } catch (error) {
             res.status(500).send({
@@ -170,16 +201,16 @@ const playlistController = {
 
         try {
             const playlist = await playlistModel
-            .create({
-                title: "Likes",
-                owner: userId,
-                likePlaylist: true,
-                private: true,
-                img: {
-                    public_id: 'Home/playlists/liked.png',
-                    secure_url: 'https://res.cloudinary.com/dppekhvoo/image/upload/v1683710140/Home/playlists/liked.png'
-                }
-            });
+                .create({
+                    title: "Likes",
+                    owner: userId,
+                    likePlaylist: true,
+                    private: true,
+                    img: {
+                        public_id: 'Home/playlists/liked.png',
+                        secure_url: 'https://res.cloudinary.com/dppekhvoo/image/upload/v1683710140/Home/playlists/liked.png'
+                    }
+                });
 
             if (!playlist) {
                 res.status(404).send({
@@ -214,13 +245,55 @@ const playlistController = {
             res.status(201).send({
                 status: true,
                 msg: "We create a new playlist",
-                data: playlist,
+                data: user,
             })
         } catch (error) {
             res.status(500).send({
                 status: false,
                 msg: error,
             })
+        }
+    },
+    updatePlaylistImage: async (req, res) => {
+        const { title, private, userId } = req.body;
+        const { id } = req.params;
+        const { playlistImg } = req.files;
+
+        try {
+            const { public_id, secure_url } = await uploadPlaylistImage(playlistImg.tempFilePath);
+            await fs.unlink(playlistImg.tempFilePath)
+
+            const updatePlaylist = await playlistModel.findOneAndUpdate(
+                { _id: id, owner: userId },
+                {
+                    title: title,
+                    img: {
+                        public_id,
+                        secure_url
+                    },
+                    private: private
+                },
+                { new: true }
+            );
+
+            if (!updatePlaylist) {
+                res.status(404).send({
+                    status: false,
+                    msg: "Playlist not found",
+                });
+                return;
+            }
+
+            res.status(200).send({
+                status: true,
+                msg: "Playlist updated successfully",
+                data: updatePlaylist,
+            });
+        } catch (error) {
+            res.status(500).send({
+                status: false,
+                msg: error.message,
+            });
         }
     },
     updateLikeSong: async (req, res) => {
@@ -310,18 +383,88 @@ const playlistController = {
             })
         }
     },
-    updatePlaylist: async (req, res) => {
+    updateEliminateFromPlaylists: async (req, res) => {
+        const { playlistId, songId } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(songId) || !mongoose.Types.ObjectId.isValid(playlistId)) {
+            res.status(409).send({
+                status: false,
+                msg: "Invalid ID",
+            });
+            return;
+        }
+
         try {
-            const playlistId = req.params.id
-            const updatedPlaylist = await playlistModel.findByIdAndUpdate(
-                playlistId,
-                req.body,
-                { new: true },
-            )
-            res.status(201).send({
+            const playlists = await playlistModel.updateMany(
+                { _id: playlistId },
+                {
+                    $pull: { songs: songId },
+                },
+                {
+                    new: true,
+                }
+            );
+
+            res.status(200).send({
+                status: true,
+                msg: "Song disliked from all playlists",
+                data: playlists,
+            });
+        } catch (err) {
+            res.status(503).send({
+                status: false,
+                msg: err.message,
+            });
+        }
+    },
+    updatePlaylistInfo: async (req, res) => {
+        const { title, private, userId } = req.body;
+        const { id: playlistId } = req.params;
+        try {
+            const playlist = await playlistModel
+                .findOneAndUpdate(
+                    {
+                        _id: playlistId,
+                        owner: userId
+                    },
+                    {
+                        title: title,
+                        private: private
+                    },
+                    { new: true },
+                )
+            return res.status(200).send({
                 status: true,
                 msg: "Playlist updated",
-                data: updatedPlaylist,
+                data: playlist,
+            })
+        } catch (error) {
+            res.status(500).send({
+                status: false,
+                msg: error,
+            })
+        }
+    },
+    updatePlaylist: async (req, res) => {
+        const { songId, userId } = req.body;
+        const { id: playlistId } = req.params;
+        try {
+            const playlist = await playlistModel
+                .findOneAndUpdate(
+                    {
+                        _id: playlistId,
+                        owner: userId
+                    },
+                    {
+                        "$addToSet": { songs: songId },
+                    },
+                    { new: true },
+                )
+
+            res.status(200).send({
+                status: true,
+                msg: "Playlist updated",
+                data: playlist,
             })
         } catch (error) {
             res.status(500).send({

@@ -1,9 +1,11 @@
-const { UserModel } = require("../models")
+const { UserModel, albumModel } = require("../models");
+const { uploadUserImage } = require("../utils/cloudinary");
+const fs = require("fs-extra");
 
 const userController = {
     postUser: async (req, res, next) => {
         const { auth: { payload: { sub } } } = req;
-        const { name, email, picture, role, username } = req.body
+        const { name, email, img, role, username, genres } = req.body
 
         try {
             const searchIfCreated = await UserModel
@@ -35,10 +37,13 @@ const userController = {
                     {
                         name,
                         email,
-                        picture,
+                        img: {
+                            secure_url: img
+                        },
                         sub,
                         role,
-                        username
+                        username,
+                        genres
                     }
                 );
 
@@ -102,6 +107,14 @@ const userController = {
         try {
             const user = await UserModel
                 .findOne({ username: username })
+                .populate({
+                    path: "playlists",
+                    populate: "songs"
+                })
+                .populate({
+                    path: "albums",
+                    populate: "songs"
+                })
                 .lean()
                 .exec();
 
@@ -113,9 +126,16 @@ const userController = {
                 return;
             }
 
+            const albumsShow = user.albums.filter(album => album.status === 1)
+
+            const userClear = {
+                ...user,
+                albums: albumsShow
+            }
+
             res.status(200).send({
                 status: true,
-                data: user
+                data: userClear
             })
         } catch (error) {
             res.status(500).send({
@@ -172,38 +192,196 @@ const userController = {
     updateBasic: async (req, res) => {
         const { body } = req;
         const { userId } = req.params;
+
         try {
             const updateUser = await UserModel.findByIdAndUpdate(
                 { _id: userId },
-                { ...body },
+                { name: body.name },
                 { new: true }
             );
+
+            if (!updateUser) {
+                res.status(404).send({
+                    status: false,
+                    msg: "User not found",
+                });
+                return;
+            }
+
             res.status(200).send({
                 status: true,
-                msg: `Sucessfully updated`,
-                data: updateUser
+                msg: "User updated successfully",
+                data: updateUser,
             });
         } catch (error) {
             res.status(500).send({
                 status: false,
-                msg: error
-            })
+                msg: error.message,
+            });
+        }
+    },
+    updateUserImage: async (req, res) => {
+        const { body } = req;
+        const { userId } = req.params;
+        const { userImg } = req.files;
+
+        try {
+            const { public_id, secure_url } = await uploadUserImage(userImg.tempFilePath);
+            await fs.unlink(userImg.tempFilePath)
+
+            const updateUser = await UserModel.findByIdAndUpdate(
+                { _id: userId },
+                {
+                    name: body.name,
+                    img: {
+                        public_id,
+                        secure_url
+                    }
+                },
+                { new: true }
+            );
+
+            if (!updateUser) {
+                res.status(404).send({
+                    status: false,
+                    msg: "User not found",
+                });
+                return;
+            }
+
+            res.status(200).send({
+                status: true,
+                msg: "User updated successfully",
+                data: updateUser,
+            });
+        } catch (error) {
+            res.status(500).send({
+                status: false,
+                msg: error.message,
+            });
         }
     },
     updateFollows: async (req, res) => {
         const { body } = req;
-        console.log(body.idVisiting)
+
+        try {
+            const user = await UserModel
+                .findOneAndUpdate(
+                    { _id: body.userId },
+                    { "$addToSet": { follows: body.idVisiting } },
+                    { new: true }
+                );
+
+            const userVisiting = await UserModel
+                .findOneAndUpdate(
+                    { _id: body.idVisiting },
+                    { "$addToSet": { followers: body.userId } },
+                    { new: true }
+                );
+
+            if (!user) {
+                res.status(404).send({
+                    status: false,
+                    msg: "User not found",
+                });
+                return;
+            }
+
+            res.status(200).send({
+                status: true,
+                msg: `Sucessfully updated`,
+                data: user
+            });
+        } catch (error) {
+            res.status(500).send({
+                status: false,
+                msg: error.message,
+            });
+        }
+    },
+    updateFollowsTypes: async (req, res) => {
+        const { id, type } = req.params;
+        const { userId } = req.body;
+
+        try {
+            const user = await UserModel
+                .findOneAndUpdate(
+                    {
+                        _id: userId
+                    },
+                    {
+                        "$addToSet": { [type]: id }
+                    },
+                    {
+                        new: true
+                    }
+                )
+                .populate({
+                    path: "playlists",
+                    populate: "songs"
+                })
+                ;
+
+            res.status(200).send({
+                status: true,
+                msg: `Sucessfully followed album`,
+                data: user
+            });
+        } catch (err) {
+            res.status(500).send({
+                status: false,
+                msg: err.message,
+            })
+        }
+    },
+    updateUnfollowsTypes: async (req, res) => {
+        const { id, type } = req.params;
+        const { userId } = req.body;
+
+        try {
+            const user = await UserModel
+                .findOneAndUpdate(
+                    {
+                        _id: userId
+                    },
+                    {
+                        "$pull": { [type]: id }
+                    },
+                    {
+                        new: true
+                    }
+                )
+                .populate({
+                    path: "playlists",
+                    populate: "songs"
+                });
+
+            res.status(200).send({
+                status: true,
+                msg: `Sucessfully unfollowed album`,
+                data: user
+            });
+        } catch (err) {
+            res.status(500).send({
+                status: false,
+                msg: err.message,
+            });
+        }
+    },
+    updateUnFollows: async (req, res) => {
+        const { body } = req;
         try {
             const user = await UserModel.findOneAndUpdate(
                 { _id: body.userId },
-                { "$addToSet": { follows: body.idVisiting } },
+                { "$pull": { follows: body.idVisiting } },
                 { new: true }
             );
             const userVisiting = await UserModel.findOneAndUpdate(
                 { _id: body.idVisiting },
-                { "$addToSet": { followers: body.userId } },
+                { "$pull": { followers: body.userId } },
                 { new: true }
             );
+
             res.status(200).send({
                 status: true,
                 msg: `Sucessfully updated`,

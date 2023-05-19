@@ -6,8 +6,13 @@ const songController = {
     getAllSongs: async (req, res) => {
         try {
             const song = await songModel
-                .find({})
-                .populate("album");
+                .find(
+                    {
+                        status: 1
+                    }
+                )
+                .populate("album")
+                .limit(20);
 
 
             if (!song) {
@@ -47,8 +52,10 @@ const songController = {
                     "title": {
                         "$regex": songTitle,
                         "$options": "i"
-                    }
+                    },
+                    status: 1
                 })
+                .limit(20)
                 .populate("album")
                 .lean()
                 .exec();
@@ -87,7 +94,12 @@ const songController = {
 
         try {
             const song = await songModel
-                .findById(idSong)
+                .findOne(
+                    {
+                        _id: idSong ,
+                        status: 1
+                    }
+                )
                 .populate("album")
                 .lean()
                 .exec();
@@ -238,6 +250,46 @@ const songController = {
             res.status(500).send({
                 status: false,
                 msg: "We have a problem while deleting the song."
+            })
+        }
+    },
+    deleteSongsByAlbum: async (req, res) => {
+        const { id: albumId } = req.params;
+        const { userId } = req.body;
+
+        try {
+            const song = await songModel
+                .updateMany(
+                    {
+                        album: albumId,
+                        owner: userId
+                    },
+                    {
+                        "$set": { status: 0 }
+                    },
+                    {
+                        new: true
+                    }
+                );
+
+            if (song < 1) {
+                return res.status(400).send({
+                    status: false,
+                    msg: "We couldn't delete songs"
+                })
+            }
+
+            const user = res.locals.user;
+
+            res.status(201).send({
+                status: true,
+                msg: "Song of album deleted",
+                data: user,
+            })
+        } catch (err) {
+            res.status(500).send({
+                status: false,
+                msg: err.message,
             })
         }
     }

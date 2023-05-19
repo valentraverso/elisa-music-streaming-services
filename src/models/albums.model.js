@@ -37,6 +37,10 @@ const albumSchema = new Schema({
         ref: "users",
         required: true,
     },
+    status: {
+        type: Number,
+        default: 1
+    }
 },
 {timestamps:true}
 );
