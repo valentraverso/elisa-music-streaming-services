@@ -11,8 +11,11 @@ const songController = {
                         status: 1
                     }
                 )
+                .sort({
+                    _id: -1
+                })
                 .populate("album")
-                .limit(20);
+                .limit(8);
 
 
             if (!song) {
