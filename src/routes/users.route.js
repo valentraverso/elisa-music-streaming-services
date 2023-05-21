@@ -4,11 +4,12 @@ const { userController } = require("../controllers");
 const { playlistController } = require("../controllers");
 const { verifyRequester } = require("../middlewares/verifyRequester");
 
-const { postUser, getBySub, getById, updateArray, updateBasic, deleteUser, getByName, getByUsername, updateFollows, updateUserImage, updateFollowsTypes, updateUnfollowsTypes, updateUnFollows } = userController;
+const { postUser, getBySub, getRandomUsers, getById, updateArray, updateBasic, deleteUser, getByName, getByUsername, updateFollows, updateUserImage, updateFollowsTypes, updateUnfollowsTypes, updateUnFollows } = userController;
 const { createLikeSongs } = playlistController;
 
 router
     .get("/sub", getBySub)
+    .get("/random", getRandomUsers) 
     .get("/id/:userId", getById)
     .get("/name/:userName", getByName)
     .get("/username/:username", getByUsername)

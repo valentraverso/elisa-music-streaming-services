@@ -181,6 +181,25 @@ const userController = {
             })
         }
     },
+    getRandomUsers: async (req, res) => {
+        const { count } = req.query;
+        const { userId } = req.params;
+      
+        try {
+            const user = await UserModel.find().limit(parseInt(count)).lean();
+      
+          res.status(200).send({
+            status: true,
+            data: user,
+          });
+        } catch (error) {
+          res.status(500).send({
+            status: false,
+            msg: error.message,
+          });
+        }
+      },
+
     updateArray: async (req, res) => {
         const { body } = req;
         const { userId } = req.params;
